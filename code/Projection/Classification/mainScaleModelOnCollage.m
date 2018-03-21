@@ -41,7 +41,18 @@ function predictOnFullCollage(server,collage,imgdim,modelnumber,downscale,basepa
     model=strcat('/model_1-2-4/svm/model-',num2str(modelnumber));    
     workingDirPath=  strcat(basepath,'/model_1-2-4/','/pca_data/train/','/model-',num2str(modelnumber));
     modelpath=  strcat(basepath,model);
-    [ outImg ] = predictScaledModelOnCollage(collage,[patchH,patchW],ModelType.CompactSVM,workingDirPath,modelpath);
+    isThreaded=0
+    gpu=0
+    if ~isThreaded && ~gpu
+        fprintf('Processing without thread...');
+        [ outImg ] = predictScaledModelOnCollage(collage,[patchH,patchW],ModelType.CompactSVM,workingDirPath,modelpath);
+    elseif isThreaded && ~gpu
+        fprintf('Processing with CPU thread...');
+        thread=10;
+        delete(gcp('nocreate'));
+        parpool(thread)
+        [ outImg ] = predictScaledModelOnCollageCPUThread(collage,[patchH,patchW],ModelType.CompactSVM,workingDirPath,modelpath,thread);       
+    end
     fprintf('Done Processing..\n');
     toc
     %% Save
