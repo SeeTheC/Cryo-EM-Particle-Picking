@@ -21,11 +21,17 @@ addpath(genpath('../MapFileReader/'));
  anglesCount= numel(totalAngles);
  incBy=5;
  till=floor(anglesCount/incBy);
- angleFrom='Y';
- savepath=strcat(saveParentPath,'Projection_',num2str(dataNum),'_(angle from',angleFrom,') -',datestr(now,'HH:MM:SS')); 
+ angleFrom='Z';
+ savepath=strcat(saveParentPath,'Projection_',num2str(dataNum),'_(angle from',angleFrom,')  ',datestr(now,'dd-mm-yyyy HH:MM:SS')); 
+ savedImgDir=strcat(savepath,'/img');
+ savedRawImgDir=strcat(savepath,'/raw_img');
  
- % creating dir
+ 
+ % Creating dir
  mkdir(savepath);
+ mkdir(savedImgDir);
+ mkdir(savedRawImgDir);
+ 
  % creating a file
 fid = fopen(strcat(savepath,'/0_info.txt'), 'a+');
 fprintf(fid, 'img_no \t max_int_value \t angle \t angle axis \n');
@@ -35,15 +41,19 @@ fprintf(fid, 'img_no \t max_int_value \t angle \t angle axis \n');
      from=(i-1)*incBy+1;
      to=from-1 + incBy;
      angles=totalAngles(from:to);
-     projection=take3DProjection(data,angles,'Y');
+     projection=take3DProjection(data,angles,angleFrom);
      
      % save projection
      for j=1:incBy
         img=projection(:,:,j);
         maxValue=max(img(:));
         imgNum=(i-1)*incBy+j;
-        imwrite(img/maxValue,strcat(savepath,'/',num2str(imgNum),'.jpg'));
+        imwrite(img/maxValue,strcat(savedImgDir,'/',num2str(imgNum),'.jpg'));
+        % writing to file
         fprintf(fid, '%d \t %f \t %f \t %s\n',imgNum,maxValue,angles(j),angleFrom);
+        % saveing raw img
+        save( strcat(savedRawImgDir,'/',num2str(imgNum),'.mat'),'img');
+        
      end
  end
  

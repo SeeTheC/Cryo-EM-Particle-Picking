@@ -1,6 +1,7 @@
 %% EMD 3D Projection
-addpath(genpath('/home/khursheed/git/Cryp-EM/code/lib/3dviewer'));
-addpath(genpath('MapFileReader/'));
+addpath(genpath('../../lib/3dviewer'));
+addpath(genpath('../MapFileReader/'));
+
 %% Reading Emd virus
  dataNum = 5693;
  datasetPath='~/git/Dataset/EM';
@@ -89,8 +90,7 @@ title('\fontsize{10}{\color{magenta}EMD-5693: Angle-0 rad}');
 colorbar,axis on, axis tight, xlabel('X-Axis'); ylabel('Y-Axis');
 
 
-
-%%
-% save img
+%% Save img
 imwrite(ithProj,'EMD-5693.jpg');
-
+save('projection.mat','ithProj');
+%%
