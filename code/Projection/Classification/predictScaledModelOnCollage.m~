@@ -1,5 +1,5 @@
 % Finds the Score for each overlapping patch 
-function [ outImg ] = predictOnCollage(collage,patchDim,modelType,dirPath)
+function [ outImg ] = predictScaledModelOnCollage(collage,patchDim,modelType,dirPath)
     
     %% Init
     [H,W]=size(collage);

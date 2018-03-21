@@ -1,5 +1,5 @@
 % Finds the Score for each overlapping patch 
-function [ outImg ] = predictOnCollage(collage,patchDim,modelType,dirPath)
+function [ outImg ] = predictScaledModelOnCollage(collage,patchDim,modelType,dirPath,modelpath)
     
     %% Init
     [H,W]=size(collage);
@@ -13,9 +13,8 @@ function [ outImg ] = predictOnCollage(collage,patchDim,modelType,dirPath)
     %% INIT Model Specific features
     if modelType==ModelType.CompactSVM
         svm_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
-        svm_pcamu=dlmread(strcat(dirPath,'/data_mean.txt'));
-        svm_pcamu=svm_pcamu';
-        struct=load(strcat(dirPath,'/compactSVMModel.mat'));
+        svm_pcamu=load(strcat(dirPath,'/data_mean.txt'));        
+        struct=load(strcat(modelpath,'/compactSVMModel.mat'));
         trainedModel=struct.compactSVMModel;        
     end
     fprintf('Init Done. Processing data..');
