@@ -1,0 +1,92 @@
+function [ output ] = processScaledModelL1CollageGpu2(collage,patchDim,modelType,dirPath,modelpath)
+    %% INIT 1.0
+    gpu=0
+    patchH=patchDim(1);patchW=patchDim(2);    
+    collage=collage(1:patchH+2,:);       
+    %% Predict
+    [outImg]=predictUsingGPU(collage,patchDim,modelType,dirPath,modelpath,gpu);
+    %%
+    output=outImg;
+end
+
+function [outImg]=predictUsingGPU(collage,patchDim,modelType,dirPath,modelpath,gpu)    
+    %% Init 1.0
+    [H,W]=size(collage);  
+    patchH=patchDim(1);patchW=patchDim(2);        
+    patchRegion=[H-patchH+1,W-patchW+1];    
+    
+    %% SVM    
+    
+    fprintf('Loading PCA coefficent....');
+    svm_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
+    svm_pcamu=load(strcat(dirPath,'/data_mean.txt'));   
+    struct=load(strcat(modelpath,'/compactSVMModel.mat'));
+    trainedModel=struct.compactSVMModel;  
+    modelType=ModelType.CompactSVM;
+    fprintf('Done ..\n');
+    %% Gpu
+    if gpu ==1 
+        fprintf('Gpu: init...');
+        svm_pcaCoeff=gpuArray(svm_pcaCoeff);
+        svm_pcamu=gpuArray(svm_pcamu);
+        collage=gpuArray(collage);
+        fprintf('Done \n');    
+    end
+    %% Per Patch methods
+    function [ feature ] = perPatchMethod(cellCol)   
+         vector=cellCol{1};   
+         feature=bsxfun(@minus,vector,svm_pcamu)*svm_pcaCoeff;  
+         clear vector;
+         feature=gather(feature);
+         %[~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
+         %num=positiveScore;     
+    end
+
+    %% Creating Cell Array array
+    tic
+    fprintf('Creating Cell Array array...\n');
+    colmat=im2col(collage,patchDim);
+    fprintf('Dim of colmat:%dx%d',size(colmat,1),size(colmat,2));
+    dim=ones(1,size(colmat,2));
+    cellColl = mat2cell(colmat',dim);
+    clear colmat;
+    fprintf('Done...\n');
+    toc
+    %% Processing
+    tic
+    fprintf('Processing...');
+    b=arrayfun(@perPatchMethod,cellColl,'UniformOutput',false);
+    fprintf('Done...\n');
+    toc
+
+    fprintf('Finding Prediction...');
+    tic
+    n=size(b,1);
+    output=zeros(size(cellColl,2),1);  
+    clear cellColl;   
+    parfor i=1:n    
+        feature=b{i};
+        [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
+        output(i)=positiveScore; 
+    end
+    toc
+    %%  Correcting the dimension of o/p
+    fprintf(' Correcting the dimension of o/p/ \n');
+    outImg=reshape(output,patchRegion(1),patchRegion(2));
+    if mod(H,2)==0 % even
+        outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');
+        outImg = padarray(outImg,[ceil((H-patchRegion(1))/2), 0],0,'post');
+    else % odd
+        outImg = padarray(outImg,[(H-patchRegion(1))/2, 0],0,'both');       
+    end
+    
+    if mod(W,2)==0 % even
+        outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'pre');
+        outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');
+    else % odd
+        outImg = padarray(outImg,[0, (W-patchRegion(2))/2],0,'both');       
+    end
+
+end
+
+

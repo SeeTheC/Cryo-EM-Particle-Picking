@@ -96,7 +96,6 @@ parfor i=1:n
     output(i)=positiveScore; 
 end
 toc
-%}
 %%
 end
 
