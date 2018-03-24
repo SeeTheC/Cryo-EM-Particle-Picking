@@ -15,7 +15,7 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
         basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
     else
         basepath='/media/khursheed/4E20CD3920CD2933/MTP';  
-    end
+    end    
     fprintf('----------------[Config]-------------------\n')
     fprintf('Config: IsThread: %d\n',isThreaded);
     fprintf('Config: Gpu:%d \n',gpu);
@@ -28,7 +28,8 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
     struct=load(testCollagePath);
     collage=struct.img;
     fprintf('Config: Collage:%s.mat \n',collageNum);
-    
+    minProbabiltyScore=0.8;
+    fprintf('Config: Min. Prob Score:%f \n',minProbabiltyScore);
     fprintf('-------------------------------------------------\n')
     
     %isThreaded=0
@@ -49,12 +50,76 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
                 fprintf('Done.\n');
             else
                 % File does not exist.
-                [prevStageImg]=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumber,downscale,basepath,savepath,isThreaded,gpu)    
+                [prevStageImg]=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumber,downscale,basepath,savepath,isThreaded,gpu);    
             end
+            [location,particleCount] = findProbableLoc(prevStageImg,minProbabiltyScore); 
+            fprintf('# of particles found at stage%d: %d\n',i,particleCount);
+
+        else
+            location=coordUpscaleAndAddPt(prevLoc(:,[1,2]),scale(i+1)/scale(i),true);
+            [prevStageImg,outLoc]=predictOnSpecLocCollage(server,collage,collageNum,imgdim,location,modelnumber,downscale,basepath,savepath,isThreaded,gpu);           
+            location=outLoc(outLoc(:,3)>minProbabiltyScore,:);
         end                
+        prevLoc=location;
     end
+    outImg=prevStageImg;
     status='completed';
 end
+
+%% PredictOnSpecLocCollage
+
+% It will find probabilty score at "SPECIFIC LOCATION" pixel of collage 
+function [outImg,outLoc]=predictOnSpecLocCollage(server,collage,collageNum,imgdim,location,modelnumber,downscale,basepath,savepath,isThreaded,gpu)
+    % patchH == cellH of collage and patchW == cellW of collage      
+    patchH=ceil(imgdim(1)/downscale);patchW=ceil(imgdim(2)/downscale);
+    %collage=collage(1:patchH,:);
+    collage=imresize(collage,1/downscale);        
+    %% Show OriginalCollage
+    if ~server
+        figure('name','Original Collage');
+        imshow(collage,[]);
+    end
+    %% 1.0 SVMv2.0 - Process college
+    tic
+    model=strcat('/model-',num2str(modelnumber));
+    
+    svmModel=strcat('/svm',model);    
+    workingDirPath=  strcat(basepath,'/pca_data/train/',model);
+    modelpath=  strcat(basepath,svmModel);   
+    if (~isThreaded && ~gpu)
+        fprintf('Processing without thread...');
+        [outImg,outLoc] = predictScaledModelL2OnCollage(collage,[patchH,patchW],location,ModelType.CompactSVM,workingDirPath,modelpath);
+    elseif false && isThreaded && ~gpu
+        fprintf('Processing with CPU thread...');
+        % TO BE WRIITEN (IF REQUIRED)
+    elseif gpu
+       %TO BE WRIITEN (IF REQUIRED) -- IN PROGRESS
+       [outImg,outLoc]  = processScaledModelL2CollageGpu2(collage,[patchH,patchW],location,ModelType.CompactSVM,workingDirPath,modelpath);          
+    end
+    fprintf('Done Processing..\n');
+    toc
+    %% Save
+    if ~server
+        figure('name','Predicted Collage');
+        imshow(outImg,[]);
+    end
+    savepath=strcat(savepath,model);
+    saveCollageImg(outImg,savepath,collageNum);
+
+end
+
+%% SaveImg
+
+% Saves the image at specified path
+function saveCollageImg(outImg,savepath,collageNum)
+    mkdir(savepath);
+    tmpImg=outImg-min(outImg(:));tmpImg=tmpImg./max(tmpImg(:));
+    imwrite(tmpImg,strcat(savepath,'/',collageNum,'.jpg'));
+    save(strcat(savepath,'/',collageNum,'.mat'),'outImg');
+end
+
+
+%% PredictOnFullCollage
 
 % It will find probabilty score at every pixel of collage using the
 % overlapping patches
@@ -105,6 +170,8 @@ function outImg=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumbe
     imwrite(tmpImg,strcat(savepath,'/',collageNum,'.jpg'));
     save(strcat(savepath,'/',collageNum,'.mat'),'outImg');
 end
+
+%% MergeParallelCollage
 
 % In Thread mode: merge the differnent parts of collage
 %  cellDim= [333,333] 

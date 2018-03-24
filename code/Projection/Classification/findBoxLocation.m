@@ -21,7 +21,7 @@ function [X,Y] = findBoxLocation(scoreCollage,boxSize,probThershold,supressBoxSi
                 [x1,x2,y1,y2] = getPatchCoordinat(cx,cy,supressBoxSize);
                 fprintf('x1:%d x2:%d y1:%d y2:%d\n',x1,x2,y1,y2);
                 box=scoreCollage(x1:x2,y1:y2);
-                [val,idx]=max(box(:));
+                [~,idx]=max(box(:));
                 mr=mod(idx,supressBoxSize(1));
                 mc=ceil(idx/supressBoxSize(1));
                 locX=x1+mr-1;locY=y1+mc-1;
