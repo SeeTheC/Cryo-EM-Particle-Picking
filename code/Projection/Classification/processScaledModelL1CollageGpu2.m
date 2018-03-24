@@ -53,7 +53,9 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
             svm_pcaCoeff=gpuArray(svm_pcaCoeff);
             svm_pcamu=gpuArray(svm_pcamu);
         end
-        collage=gpuArray(collage);
+        for section=1:noOfParts
+            collageCell{section}=gpuArray(collageCell{section});
+        end
         fprintf('Done \n');    
     end
     %% Per Patch methods
@@ -67,7 +69,7 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
     end
     
     %% Process on each part of collage
-    for section=1:2
+    for section=1:noOfParts
         fprintf('............[%d/%d].........\n',section,noOfParts);
         [H,W]=size(collageCell{section});      
         patchRegion=[H-patchH+1,W-patchW+1];     

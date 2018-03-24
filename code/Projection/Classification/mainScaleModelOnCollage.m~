@@ -51,7 +51,9 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
                 % File does not exist.
                 [prevStageImg]=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumber,downscale,basepath,savepath,isThreaded,gpu)    
             end
-        end                
+        end
+        
+        %
     end
     status='completed';
 end
