@@ -1,6 +1,6 @@
 % Level2 Scale Model Prediction
 % I.e Using location not at every location
-function [outImg,outLoc] = predictScaledModelL2OnCollage(collage,patchDim,location,modelType,dirPath,modelpath)
+function [outImg,outLoc] = predictScaledModelLnCollage(collage,patchDim,location,modelType,dirPath,modelpath)
     
     %% Init
     [H,W]=size(collage);    

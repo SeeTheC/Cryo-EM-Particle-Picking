@@ -1,6 +1,6 @@
-function [ outImg,outLoc ] = processScaledModelL2CollageGpu2(collage,patchDim,predLocation,modelType,dirPath,modelpath)
+function [ outImg,outLoc ] = processScaledModelLnCollageGpu2(collage,patchDim,predLocation,modelType,dirPath,modelpath)
     %% INIT 1.0
-    gpu=0             
+    gpu=0;             
     noOflocation=size(predLocation,1);
     %% Cropping the image at mutliple location
     % Divinding collages Parts into different parts. Because RAM & GPU
@@ -47,6 +47,7 @@ function [outImg,outputLoc]=predictUsingGPU(collage,locationCell,patchDim,modelT
     end
     
     %% Process on each part of collage
+    fprintf('Processing...\n')
     for section=1:noOfParts
         fprintf('............[%d/%d].........\n',section,noOfParts);
         location=locationCell{section};    
@@ -54,7 +55,7 @@ function [outImg,outputLoc]=predictUsingGPU(collage,locationCell,patchDim,modelT
         tic
         fprintf('Creating Cell Array array...\n');
         [cellColl,location]=getCroppedImgMtx(collage,location,patchDim);
-        fprintf('No Of Location:%d \nEach of Dim:%dx%d',size(cellColl,1),patchDim(1),patchDim(2));
+        fprintf('No Of Location:%d \nEach of Dim:%dx%d',size(cellColl,2),patchDim(1),patchDim(2));
         fprintf('Done...\n');
         toc
         if (size(cellColl,1)==0)
@@ -70,20 +71,25 @@ function [outImg,outputLoc]=predictUsingGPU(collage,locationCell,patchDim,modelT
         fprintf('Finding Prediction...');
         tic
         n=size(b,1);
-        output=zeros(size(cellColl,2),1);  
+        output=zeros(n,1);  
         clear cellColl;   
         parfor i=1:n               
             feature=b{i};
             [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);            
             output(i)=positiveScore;            
         end
+        fprintf('Done.\n')
         toc        
         %%  Marking score on Image
-        for i=1:size(location,1)
+        fprintf('Marking Score on Image...');
+        resLoc=zeros(n,3);
+        for i=1:n
             x=location(i,1);y=location(i,2);
             outImg(x,y)=output(i);
+            resLoc(i,:)=[x,y,output(i)];
         end
-        outputLoc=vertcat(outputLoc,location);
+        outputLoc=vertcat(outputLoc,resLoc);
+        fprintf('Done.\n')
    end        
 
 end

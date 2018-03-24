@@ -1,5 +1,5 @@
 % Finds the Score for each overlapping patch: Scaled Model architecture
-function [ outCell ] = predictScaledModelOnCollageCPUThread(collage,patchDim,modelType,dirPath,modelpath,thread)
+function [ outCell ] = predictScaledModelL1CollageCPUThread(collage,patchDim,modelType,dirPath,modelpath,thread)
     
     %% Init
     [H,W]=size(collage);    
