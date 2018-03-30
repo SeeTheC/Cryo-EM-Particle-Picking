@@ -1,6 +1,6 @@
 function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelType,dirPath,modelpath)
     %% INIT 1.0
-    gpu=1
+    gpu=1;
     [H,W]=size(collage); 
     patchH=patchDim(1);patchW=patchDim(2);    
     halfPatchH=patchH/2;       

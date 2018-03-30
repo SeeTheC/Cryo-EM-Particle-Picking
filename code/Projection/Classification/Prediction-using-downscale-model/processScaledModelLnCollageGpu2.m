@@ -1,11 +1,11 @@
 function [ outImg,outLoc ] = processScaledModelLnCollageGpu2(collage,patchDim,predLocation,modelType,dirPath,modelpath)
     %% INIT 1.0
-    gpu=0;             
+    gpu=1;             
     noOflocation=size(predLocation,1);
     %% Cropping the image at mutliple location
     % Divinding collages Parts into different parts. Because RAM & GPU
     % memory will not sufficient to process the full collage at a time.    
-    procParallelPatch=10;
+    procParallelPatch=1000;
     noOfParts=floor(noOflocation/procParallelPatch);       
     [locationCell]=divideInSection(predLocation,collage,noOfParts);
     %% Predict
