@@ -81,7 +81,8 @@ function [ outputStatus ] = genNegImgFromCollage(collageDirPath,cellDim,collageG
             dim=size(img);
             imgNum=negImgPerCollage*(c-1) + i;
             if (dim(1) == cellH && dim(2) == cellW)
-                imwrite(uint8(img),strcat(savedImgDir,'/',num2str(imgNum),'.jpg'));
+                img=img/max(img(:));                
+                imwrite(im2double(img),strcat(savedImgDir,'/',num2str(imgNum),'.jpg'));
                 save(strcat(savedRawImgDir,'/',num2str(imgNum),'.mat'),'img');
             else
                 fprintf('Error: Dim of Img didnt match. Please verfy code\n');

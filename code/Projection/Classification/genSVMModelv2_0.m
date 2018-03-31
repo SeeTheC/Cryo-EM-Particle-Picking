@@ -9,7 +9,11 @@ function [ status ] = genSVMModelv2_0(server,noOfScales)
         basepath='/media/khursheed/4E20CD3920CD2933/MTP/';  
     end
     % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
-    basepath=strcat(basepath,'/_data-Y,Z','v.10','/model_1-2-4');
+    %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
+    basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
+    %basepath=strcat(basepath,'/_data-proj-2211','v.10');        
+   
+    basepath=strcat(basepath,'/model_1-2-4');       
      %% Generating SVM Model
     for i=1:noOfScales 
            fprintf('.............Generating SVM Model:%d..............\n',i);

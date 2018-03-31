@@ -10,8 +10,24 @@ else
     basepath='/media/khursheed/4E20CD3920CD2933/MTP/';  
 end
 
-trainPath=strcat(basepath,'/_data-Y,Z','v.10','/train');
-testPath=strcat(basepath,'/_data-Y,Z','v.10','/test');
+% --------------------[Config] ------------------------------
+% Dataset:1
+basepath=strcat(basepath,'/_data-Y,Z','v.10');
+cellH=333; cellW=333; % Per cell one image
+%trainPath = strcat(basepath,'/train');
+%testPath = strcat(basepath,'/test');
+trainPath = strcat(basepath,'/Noisy_downscale2','/train');
+testPath = strcat(basepath,'/Noisy_downscale2','/test');
+
+% Dataset:2
+%basepath=strcat(basepath,'/_data-proj-2211','v.10');
+%cellH=178; cellW=178; % Per cell one image
+%trainPath = strcat(basepath,'/train');
+%testPath = strcat(basepath,'/test');
+
+gridRow=6; gridCol=6;
+% -----------------------------------------------------------
+
 
 % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
 trainCollageDP = strcat(trainPath,'/collage1_10x10');
@@ -21,11 +37,6 @@ collageDirPath{1,1}=trainPath;
 collageDirPath{1,2}=strcat(trainCollageDP,'/raw_img');
 collageDirPath{2,1}=testPath;
 collageDirPath{2,2}=strcat(testCollageDP,'/raw_img');
-
-
-% Per cell one image
-cellH=333; cellW=333;
-gridRow=10; gridCol=10;
 
 %  # collage in the specified folder
 negImgPerCollage=10;

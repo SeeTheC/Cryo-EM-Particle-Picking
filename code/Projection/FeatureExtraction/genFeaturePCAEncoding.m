@@ -13,7 +13,11 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales)
             basepath='/media/khursheed/4E20CD3920CD2933/MTP';  
         end
         % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
-        basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
+        
+        %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
+        basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
+        %basepath=strcat(basepath,'/_data-proj-2211','v.10');        
+
         savepath=strcat(basepath,'/model_',timestamp); 
         mkdir(savepath);
         fid = fopen(strcat(savepath,'/model_info.txt'), 'w+');

@@ -9,6 +9,12 @@ else
 end
 
 % +v images
+% Example:
+% dataPath{1,1}=strcat(basepath,'/Y/img');
+% dataPath{1,2}=strcat(basepath,'/Y/raw_img');
+% dataPath{2,1}=strcat(basepath,'/Z/img');
+% dataPath{2,2}=strcat(basepath,'/Z/raw_img');
+
 dataPath{1,1}=strcat(basepath,'/Y/img');
 dataPath{1,2}=strcat(basepath,'/Y/raw_img');
 dataPath{2,1}=strcat(basepath,'/Z/img');
@@ -34,7 +40,7 @@ mkdir(saveTestDPRaw);
 
 
 % Test Data Percentage
-testPercent=25; % i.e 25 %
+testPercent=50; % i.e 50 %
 %% Random Fetch Train and Test data
 addpath('../DataCorrection/');
 for i=1:size(dataPath,1)

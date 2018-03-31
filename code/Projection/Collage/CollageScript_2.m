@@ -10,12 +10,28 @@ else
     basepath='/media/khursheed/4E20CD3920CD2933/MTP';  
 end
 
+%-------------------------[Config]-----------------------------
 % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
-trainDP = strcat(basepath,'/_data-Y,Z','v.10','/train');
-testDP = strcat(basepath,'/_data-Y,Z','v.10','/test');
 
-trainDPRaw=strcat(trainDP,'/raw_img');
-testDPRaw=strcat(testDP,'/raw_img');
+% Dataset:2
+basepath=strcat(basepath,'/_data-Y,Z','v.10');
+cellH=333; cellW=333; % Per cell one image
+%trainDP = strcat(basepath,'/train');
+%testDP = strcat(basepath,'/test');
+trainDP = strcat(basepath,'/Noisy_downscale2','/train');
+testDP = strcat(basepath,'/Noisy_downscale2','/test');
+
+
+% Dataset:2
+%basepath=strcat(basepath,'/_data-proj-2211','v.10');
+%cellH=178; cellW=178; % Per cell one image
+%trainDP = strcat(basepath,'/train');
+%testDP = strcat(basepath,'/test');
+
+
+gridRow=6; gridCol=6;
+noOfCollage=200;
+%------------------------------------------------------
 
 
 saveTrainCollagePath=strcat(trainDP,'/collage_',timestamp);
@@ -42,14 +58,7 @@ dataPath{2,5}=getDirFilesName(dataPath{2,1});
 dataPath{2,6}=size(dataPath{2,5},2);
 
 
-% Per cell one image
-cellH=333; cellW=333;
-gridRow=10; gridCol=10;
-%gridRow=2; gridCol=2;
-
-noOfCollage=3;
 noOfDataFolder=size(dataPath,1);
-
 % size of original image
 %% Create Dir
 for i=1:noOfDataFolder
@@ -92,7 +101,8 @@ for dir=1:noOfDataFolder
         fprintf(fid, 'Folder = ');            
         fprintf(fid, '\nImageNumber  =');
         fprintf(fid, ' %d',randImgNum);
-        imwrite(uint8(collage),strcat(dataPath{dir,3},'/',num2str(i),'.jpg'));
+        img=collage/max(collage(:));
+        imwrite(im2double(img),strcat(dataPath{dir,3},'/',num2str(i),'.jpg'));
         % saveing raw img
         img=collage;
         save(strcat(dataPath{dir,4},'/',num2str(i),'.mat'),'img');

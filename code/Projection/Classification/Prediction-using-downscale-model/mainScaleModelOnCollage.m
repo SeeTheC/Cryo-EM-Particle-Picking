@@ -20,8 +20,13 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
     fprintf('Config: IsThread: %d\n',isThreaded);
     fprintf('Config: Gpu:%d \n',gpu);
     collageNum='1';
-    % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE        
-    basepath=strcat(basepath,'/_data-Y,Z','v.10');
+    % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE            
+    
+    basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
+    %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
+    %basepath=strcat(basepath,'/_data-proj-2211','v.10');        
+
+
     testPath=strcat(basepath,'/test');
     testCollagePath= strcat(testPath,'/collage1_6x6','/raw_img/',collageNum,'.mat');
     savepath= strcat(testPath,'/collage1_6x6','/processed_img/',collageNum);    
@@ -94,7 +99,7 @@ function [outImg,outLoc]=predictOnSpecLocCollage(server,collage,collageNum,imgdi
         fprintf('Processing with CPU thread...');
         % TO BE WRIITEN (IF REQUIRED)
     elseif gpu
-       %TO BE WRIITEN (IF REQUIRED) -- IN PROGRESS
+       fprintf('Processing with Gpu.\n'); 
        [outImg,outLoc]  = processScaledModelLnCollageGpu2(collage,[patchH,patchW],location,ModelType.CompactSVM,workingDirPath,modelpath);          
     end
     fprintf('Done Processing..\n');
@@ -155,6 +160,7 @@ function outImg=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumbe
         [outImg]=mergeParallelCollage(outCell,[patchH,patchW],collageSize);
         
     elseif gpu
+        fprintf('Processing with Gpu.\n'); 
         [outCell] = processScaledModelL1CollageGpu2(collage,[patchH,patchW],ModelType.CompactSVM,workingDirPath,modelpath);
         [outImg]=mergeParallelCollage(outCell,[patchH,patchW],collageSize);    
     end

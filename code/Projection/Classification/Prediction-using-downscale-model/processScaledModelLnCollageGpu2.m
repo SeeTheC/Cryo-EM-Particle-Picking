@@ -6,7 +6,11 @@ function [ outImg,outLoc ] = processScaledModelLnCollageGpu2(collage,patchDim,pr
     % Divinding collages Parts into different parts. Because RAM & GPU
     % memory will not sufficient to process the full collage at a time.    
     procParallelPatch=1000;
-    noOfParts=floor(noOflocation/procParallelPatch);       
+    if noOflocation>procParallelPatch
+        noOfParts=floor(noOflocation/procParallelPatch);       
+    else
+        noOfParts=1;
+    end    
     [locationCell]=divideInSection(predLocation,collage,noOfParts);
     %% Predict
     [outImg,outLoc]=predictUsingGPU(collage,locationCell,patchDim,modelType,dirPath,modelpath,gpu);            
