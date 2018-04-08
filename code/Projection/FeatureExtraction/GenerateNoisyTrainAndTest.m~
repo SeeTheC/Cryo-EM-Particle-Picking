@@ -80,7 +80,6 @@ for i=1:size(dataPath,1)
     noOfImg=min(maxNumSample,noOfImg);    
     randomOrder=randperm(noOfImg,noOfImg);  
     fid = fopen(saveDP{i,3}, 'w+');
-    fprintf(fid,'img#\ttotal_int_val\tafter_down_scale\tdownscale_by');
     
     % train
     for j=1:noOfImg
@@ -93,8 +92,8 @@ for i=1:size(dataPath,1)
         struct=load(fromPath);
         img=struct.img;
                 
-        [noisyImg,tiv,dtiv]=addPoissonNoise(img,poissonDownScaleIntesity,currentBackgroundIntensity);
-        fprintf(fid,'%d\t%f\t%f\t%d',j,tiv,dtiv,poissonDownScaleIntesity);
+        [noisyImg=addPoissonNoise(img,poissonDownScaleIntesity,currentBackgroundIntensity);
+
         % img
         img=noisyImg/max(noisyImg(:));                        
         %imshow(img)        
@@ -105,7 +104,6 @@ for i=1:size(dataPath,1)
         toPath=strcat(saveDP{i,2},'/',newName,'.mat');
         save(toPath,'img');
     end    
-    fclose(fid);
     
 end
 fprintf('Completed...\n');
