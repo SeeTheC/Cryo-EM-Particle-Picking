@@ -96,7 +96,7 @@ for i=1:size(dataPath,1)
         [noisyImg,tiv,dtiv]=addPoissonNoise(img,poissonDownScaleIntesity,currentBackgroundIntensity);
         fprintf(fid,'%d\t%f\t%f\t%d\n',j,tiv,dtiv,poissonDownScaleIntesity);
         % img
-        img=noisyImg/max(noisyImg(:));                        
+        img=noisyImg-min(noisyImg(:));img=img/max(noisyImg(:));                        
         %imshow(img)        
         toPath=strcat(saveDP{i,1},'/',newName,'.jpg');
         imwrite(im2double(img),toPath);
