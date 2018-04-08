@@ -25,6 +25,19 @@ testPath = strcat(basepath,'/Noisy_downscale2','/test');
 %trainPath = strcat(basepath,'/train');
 %testPath = strcat(basepath,'/test');
 
+
+% Dataset:3
+%basepath=strcat(basepath,'/_data-proj-5689','v.10');
+%cellH=278; cellW=278; % Per cell one image
+%trainPath = strcat(basepath,'/train');
+%testPath = strcat(basepath,'/test');
+
+% Dataset:4
+basepath=strcat(basepath,'/_data-proj-5762','v.10');
+cellH=444; cellW=444; % Per cell one image
+trainPath = strcat(basepath,'/train');
+testPath = strcat(basepath,'/test');
+
 gridRow=6; gridCol=6;
 % -----------------------------------------------------------
 

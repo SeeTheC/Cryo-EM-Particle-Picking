@@ -3,7 +3,7 @@
 % Lower scaled model will be used for fast destection of object using ML
 % methods like SVM, Randomforest etc.
 
-function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales)
+function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSample)
         %% INIT
         status='fail';
         timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
@@ -14,9 +14,11 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales)
         end
         % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
         
-        %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
-        basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
-        %basepath=strcat(basepath,'/_data-proj-2211','v.10');        
+        %basepath=strcat(basepath,'/_data-Y,Z','v.10'); % img dimension: [333,333]
+        %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2'); % img dimension: [333,333]       
+        %basepath=strcat(basepath,'/_data-proj-2211','v.10'); % img dimension: [178,178]       
+        %basepath=strcat(basepath,'/_data-proj-5693','v.20'); % img dimension: [333,333]
+        basepath=strcat(basepath,'/_data-proj-5689','v.10');  % img dimension: [278,278]
 
         savepath=strcat(basepath,'/model_',timestamp); 
         mkdir(savepath);
@@ -30,13 +32,13 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales)
                fprintf('.............Generating Model:%d..............\n',i);
                fprintf(fid,'...................[Model %d].............\n',i);
                imgHeight=ceil(imgdim(1)/downscale);imgWidth=ceil(imgdim(2)/downscale);
-               generate(server,imgdim,downscale,i,basepath,savepath);
+               generate(server,imgdim,downscale,i,basepath,savepath,maxNumberSample);
                fprintf(fid, 'Model #:%d\tDownsampleBy:%d\tImgDim: [%d,%d]\n',i,downscale,imgHeight,imgWidth);
         end
         fclose(fid);
         status='Completed';
 end
-function generate(server,imgdim,downscale,modelNumber,basepath,savepath)
+function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumberSample)
     %% Init     
     
     % train images
@@ -56,7 +58,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath)
     
     %% 1. Fetch Train Data Images
     fprintf('Reading +ve Train...');    
-    [dataMtx,totalRecord]=getImgDataAsDataMtx(trainDataPath,[imgHeight,imgWidth],downscale);
+    [dataMtx,totalRecord]=getImgDataAsDataMtx(trainDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);
     
     %% 1.1 Finding PCA and Encoding Image Vectors
@@ -92,7 +94,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath)
     fprintf('Done.\n');
     %% 1.3 Fetch -ve Data Images
     fprintf('Reading -ve Train...');    
-    [dataMtx,totalRecord]=getImgDataAsDataMtx(trainNegDataPath,[imgHeight,imgWidth],downscale);
+    [dataMtx,totalRecord]=getImgDataAsDataMtx(trainNegDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);    
     % Finding -ve Data Eigen Coeffient 
     negData_coeff= bsxfun(@minus,dataMtx,mu)*coeff;
@@ -123,7 +125,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath)
 
     %% 2.1 Reading Test Data and Finding its eigen coeff
     fprintf('Reading +ve Test...');    
-    [dataMtx,totalRecord]=getImgDataAsDataMtx(testDataPath,[imgHeight,imgWidth],downscale);
+    [dataMtx,totalRecord]=getImgDataAsDataMtx(testDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);
     
     % Finding -ve Data Eigen Coeffient 
@@ -155,7 +157,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath)
     
     %% 2.3 TEST DATA: Fetching Negative data
     fprintf('Reading -ve Test...');    
-    [dataMtx,totalRecord]=getImgDataAsDataMtx(testNegDataPath,[imgHeight,imgWidth],downscale);
+    [dataMtx,totalRecord]=getImgDataAsDataMtx(testNegDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);
     
     % Finding -ve Data Eigen Coeffient 

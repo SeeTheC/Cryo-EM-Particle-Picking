@@ -16,9 +16,14 @@ end
 
 % ------------------[Config]---------------------
 basepath = strcat(basepath,'/_data-Y,Z','v.10');
+basepath=strcat(basepath,'/_data-proj-5693','v.20');background=30;
+%basepath=strcat(basepath,'/_data-proj-2211','v.10');background=0.1;
+%basepath=strcat(basepath,'/_data-proj-5689','v.10');background=0.065;
+%basepath=strcat(basepath,'/_data-proj-5762','v.10');background=0.1;
+
 maxNumSample=2; % defalut "Inf"
 poissonDownScaleIntesity=2; % used in poisson noise creation 
-currentBackgroundIntensity=10; % used in poisson noise creation
+currentBackgroundIntensity=background; % used in poisson noise creation
 % ------------------------------------------
 trainDP = strcat(basepath,'/train');
 testDP = strcat(basepath,'/test');
@@ -75,11 +80,11 @@ for i=1:size(dataPath,1)
         
         struct=load(fromPath);
         img=struct.img;
-
+                
         noisyImg=addPoissonNoise(img,poissonDownScaleIntesity,currentBackgroundIntensity);
 
         % img
-        img=noisyImg/max(noisyImg(:));
+        img=noisyImg/max(noisyImg(:));                        
         %imshow(img)        
         toPath=strcat(saveDP{i,1},'/',newName,'.jpg');
         imwrite(im2double(img),toPath);

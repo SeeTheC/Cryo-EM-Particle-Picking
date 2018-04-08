@@ -21,12 +21,12 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
     fprintf('Config: Gpu:%d \n',gpu);
     collageNum='1';
     % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE            
-    
-    basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
+       
+    %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
     %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
-    %basepath=strcat(basepath,'/_data-proj-2211','v.10');        
-
-
+    %basepath=strcat(basepath,'/_data-proj-2211','v.10');       
+    basepath=strcat(basepath,'/_data-proj-5693','v.20');
+    
     testPath=strcat(basepath,'/test');
     testCollagePath= strcat(testPath,'/collage1_6x6','/raw_img/',collageNum,'.mat');
     savepath= strcat(testPath,'/collage1_6x6','/processed_img/',collageNum);    

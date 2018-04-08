@@ -10,29 +10,28 @@ else
     basepath='/media/khursheed/4E20CD3920CD2933/MTP';  
 end
 
-%-------------------------[Config]-----------------------------
+%% -------------------------[Config]-----------------------------
 % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
 
-% Dataset:2
-basepath=strcat(basepath,'/_data-Y,Z','v.10');
+%basepath=strcat(basepath,'/_data-Y,Z','v.10');
+basepath=strcat(basepath,'/_data-proj-5693','v.20');
+trainDP = strcat(basepath,'/train');
+testDP = strcat(basepath,'/test');
+%trainDP = strcat(basepath,'/Noisy_downscale2','/train');
+%testDP = strcat(basepath,'/Noisy_downscale2','/test');
 cellH=333; cellW=333; % Per cell one image
-%trainDP = strcat(basepath,'/train');
-%testDP = strcat(basepath,'/test');
-trainDP = strcat(basepath,'/Noisy_downscale2','/train');
-testDP = strcat(basepath,'/Noisy_downscale2','/test');
 
 
-% Dataset:2
 %basepath=strcat(basepath,'/_data-proj-2211','v.10');
-%cellH=178; cellW=178; % Per cell one image
 %trainDP = strcat(basepath,'/train');
 %testDP = strcat(basepath,'/test');
+%cellH=178; cellW=178; % Per cell one image
 
 
 gridRow=6; gridCol=6;
-noOfCollage=200;
+noOfCollage=200
 %------------------------------------------------------
-
+%%
 
 saveTrainCollagePath=strcat(trainDP,'/collage_',timestamp);
 saveTrainCollageDPImg = strcat(saveTrainCollagePath,'/img');

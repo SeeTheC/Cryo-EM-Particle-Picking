@@ -1,0 +1,65 @@
+1.  Select Dataset. The change dataset path and run below file
+EMD-Bulk3D-Projection\CreateBulkProjectionDataSetWith2Angle.m
+
+Note: Result will be saved in "SavedFile" folder
+
+	 i.  run the file	 
+	 ii. copy generated dataset from "SavedFile" to "data" folder
+	 iii. Rename, to give some good name
+
+
+2. Separate +ve positive images into train and test set
+
+	i. Open: FeatureExtraction\GeneratePosTrainAndTest_1.m
+    ii. Change Dataset path
+    iii. change the save path
+    iv. Set the "Test image" percent
+    v. run the file
+
+3. Generating Collage
+
+File: Collage\CollageScript_2.m
+	i. Change the folder path (i.e save path of step 2)
+	ii. Set no. of collage "noOfCollage"
+	iii. Set below parameter: cellH,cellW is img diemension, gridRow,gridCol defines collaga size
+	     cellH=178; cellW=178;
+		 gridRow=6; gridCol=6;
+    
+	iii. run the file
+
+4. Generating Negative image from collage
+File: Collage\GenerateNegDataScript_3.m
+
+    i. Change the folder path (i.e save path of step 3)
+    ii. Set no. of negative image per collage
+    iii. set below param
+	    % Per cell one image
+		cellH=178; cellW=178;
+		gridRow=6; gridCol=6;
+	iv. run the file 
+
+5. manually check whether negative image data is right or not from "img" folder. After that run
+
+File: DataCorrection\synRawAndImgDataScript.m 
+
+6. Feature Extraction
+File: FeatureExtraction\MainFeatureFinding
+ 	*** 1.PCA ****
+ 	i. set image dim : imgdim=[178,178] 
+ 	ii. set noOfScales, default 3
+ 	iii. In function, "genFeaturePCAEncoding" change the basepath
+ 	iv. Run file
+
+7. Train Learning model
+  
+   *** 1.SVM ****
+File: Classification\genSVMModelv2_0.m
+     i. Change base path
+     ii.run by call: genSVMModelv2_0(1,3)
+
+8. Predict on collage using "downscale model algo" 
+File: Classification\Prediction-using-downscale-model\MainScaleModelOnCollage.m
+	i. change base path
+	ii. change collage path to be tested
+	ii. set minProbabiltyScore
+	iv. Run by  gpu: mainScaleModelOnCollage(1,[178,178],[1,2,4],false,true)
