@@ -7,13 +7,13 @@ else
 end
 
 %basepath=strcat(basepath,'/_data-Y,Z','v.10');
-basepath=strcat(basepath,'/_data-proj-5693','v.20');background=30;
+%basepath=strcat(basepath,'/_data-proj-5693','v.20');background=30;
 %basepath=strcat(basepath,'/_data-proj-2211','v.10');background=0.1;
-%basepath=strcat(basepath,'/_data-proj-5689','v.10');background=0.065;
+basepath=strcat(basepath,'/_data-proj-5689','v.10');background=0.065;
 %basepath=strcat(basepath,'/_data-proj-5762','v.10');background=0.1;
 
 testPath=strcat(basepath,'/test');
-testCollagePath= strcat(testPath,'/collage1_6x6','/raw_img/','1.mat');
+testCollagePath= strcat(testPath,'/collage1_6x6','/raw_img/','21.mat');
 
 struct=load(testCollagePath);
 collage1=struct.img;

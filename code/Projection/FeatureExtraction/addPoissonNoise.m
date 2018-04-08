@@ -6,11 +6,11 @@ function [noisyImg,totalIntensityVal,downscaleIntensityVal] = addPossionNoise(im
     if max(img(:))<10
         toScale=true;
     end
-    if toScale
-        img=img.*255;
-    end
     %% Add noise
     img(img<=background)=max(img(:))/3; 
+    if toScale
+        img=img.*255;
+    end    
     totalIntensityVal=sum(img(:));
     img1=img/downscaleIntesity;
     downscaleIntensityVal=sum(img1(:));
