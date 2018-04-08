@@ -21,8 +21,8 @@ basepath=strcat(basepath,'/_data-proj-5693','v.20');background=30;
 %basepath=strcat(basepath,'/_data-proj-5689','v.10');background=0.065;
 %basepath=strcat(basepath,'/_data-proj-5762','v.10');background=0.1;
 
-maxNumSample=2; % defalut "Inf"
 poissonDownScaleIntesity=2; % used in poisson noise creation 
+maxNumSample=2; % defalut "Inf"
 currentBackgroundIntensity=background; % used in poisson noise creation
 % ------------------------------------------
 trainDP = strcat(basepath,'/train');
