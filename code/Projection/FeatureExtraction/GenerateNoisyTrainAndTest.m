@@ -74,7 +74,7 @@ end
 fprintf('Generate for Noisy data..\n');
 
 for i=1:size(dataPath,1)
-    fprintf('--------------------[Datapath:%d]------------------\n',i);
+    fprintf('--------------------[Datapath:%d: downsample:%d]------------------\n',i,poissonDownScaleIntesity);
     fileList=getDirFilesName(dataPath{i});
     noOfImg=size(fileList,2);
     noOfImg=min(maxNumSample,noOfImg);    
