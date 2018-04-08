@@ -15,7 +15,7 @@ end
 %basepath = strcat(basepath,'/_data-Y,Z','v.10','/train');
 
 % ------------------[Config]---------------------
-basepath = strcat(basepath,'/_data-Y,Z','v.10');
+%basepath = strcat(basepath,'/_data-Y,Z','v.10');
 basepath=strcat(basepath,'/_data-proj-5693','v.20');background=30;
 %basepath=strcat(basepath,'/_data-proj-2211','v.10');background=0.1;
 %basepath=strcat(basepath,'/_data-proj-5689','v.10');background=0.065;
