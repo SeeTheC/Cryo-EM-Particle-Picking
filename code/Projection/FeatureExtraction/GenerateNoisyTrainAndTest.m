@@ -55,7 +55,7 @@ saveDP{2,3}=strcat(saveTestDP,'/noise_info.txt');
 
 saveDP{3,1}=strcat(saveTrainDP,'/collage1_6x6','/img');
 saveDP{3,2}=strcat(saveTrainDP,'/collage1_6x6','/raw_img');
-SaveDP{3,3}=strcat(saveTrainDP,'/collage1_6x6','/noise_info.txt');
+saveDP{3,3}=strcat(saveTrainDP,'/collage1_6x6','/noise_info.txt');
 
 saveDP{4,1}=strcat(saveTestDP,'/collage1_6x6','/img');
 saveDP{4,2}=strcat(saveTestDP,'/collage1_6x6','/raw_img');
@@ -80,7 +80,7 @@ for i=1:size(dataPath,1)
     noOfImg=min(maxNumSample,noOfImg);    
     randomOrder=randperm(noOfImg,noOfImg);  
     fid = fopen(saveDP{i,3}, 'w+');
-    fprintf(fid,'img#\ttotal_int_val\tafter_down_scale\tdownscale_by');
+    fprintf(fid,'img#\ttotal_int_val\tafter_down_scale\tdownscale_by\n');
     
     % train
     for j=1:noOfImg
@@ -94,7 +94,7 @@ for i=1:size(dataPath,1)
         img=struct.img;
                 
         [noisyImg,tiv,dtiv]=addPoissonNoise(img,poissonDownScaleIntesity,currentBackgroundIntensity);
-        fprintf(fid,'%d\t%f\t%f\t%d',j,tiv,dtiv,poissonDownScaleIntesity);
+        fprintf(fid,'%d\t%f\t%f\t%d\n',j,tiv,dtiv,poissonDownScaleIntesity);
         % img
         img=noisyImg/max(noisyImg(:));                        
         %imshow(img)        
