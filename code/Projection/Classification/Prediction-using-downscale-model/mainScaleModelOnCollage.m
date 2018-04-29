@@ -19,15 +19,16 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
     fprintf('----------------[Config]-------------------\n')
     fprintf('Config: IsThread: %d\n',isThreaded);
     fprintf('Config: Gpu:%d \n',gpu);
-    collageNum='1';
+    collageNum='2';
     % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE            
        
     %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
-    %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
+    basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale10');         
     %basepath=strcat(basepath,'/_data-proj-2211','v.10');       
-    basepath=strcat(basepath,'/_data-proj-5693','v.20');
+    %basepath=strcat(basepath,'/_data-proj-5693','v.20');
+    %basepath=strcat(basepath,'/_data-proj-5693','v.20','/Noisy_downscale10');
     
-    testPath=strcat(basepath,'/test');
+    testPath=strcat(basepath,'/train');
     testCollagePath= strcat(testPath,'/collage1_6x6','/raw_img/',collageNum,'.mat');
     savepath= strcat(testPath,'/collage1_6x6','/processed_img/',collageNum);    
     struct=load(testCollagePath);
@@ -49,7 +50,7 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,isThreaded,gp
         if i==noOfScale
             fprintf('Checking for Processed model-%d, if exist or not?\n',i);
             file=strcat(savepath,'/model-',num2str(i),'/',collageNum,'.mat');
-            if false && exist(file,'file')
+            if exist(file,'file')
                 fprintf('-->Found :).\n Loading previous computed files..\n');                
                 prevStageImg=load(file);
                 prevStageImg=prevStageImg.outImg;
@@ -190,8 +191,8 @@ function [mergedImg]=mergeParallelCollage(imgCell,cellDim,orgCollageDim)
     threadImgHeight= floor(H/thread);
     halfPatchH=cellH/2;    
     for i=1:thread
-        offset=(i-1)*threadImgHeight+1;
-        x1=offset-floor(halfPatchH);
+        offset=(i-1)*threadImgHeight;
+        x1=offset-floor(halfPatchH)+1;
         x2=offset+threadImgHeight-1+floor(halfPatchH);
         if x1 <1
             x1=1;

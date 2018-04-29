@@ -1,6 +1,6 @@
 function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelType,dirPath,modelpath)
     %% INIT 1.0
-    gpu=1;
+    gpu=0;
     [H,W]=size(collage); 
     patchH=patchDim(1);patchW=patchDim(2);    
     halfPatchH=patchH/2;       
@@ -15,8 +15,8 @@ function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelTyp
         return;
     end
     for i=1:noOfParts
-        offset=(i-1)*partImgHeight+1;
-        x1=offset-floor(halfPatchH);
+        offset=(i-1)*partImgHeight;
+        x1=offset-floor(halfPatchH)+1;
         x2=offset+partImgHeight-1+floor(halfPatchH);
         if x1 < 1
             x1=1;
@@ -24,8 +24,8 @@ function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelTyp
         if x2 > H
             x2=H;
         end
+        %fprintf('x1:%d x2:%d dist:%d\n',x1,x2,x2-x1);
         collageCell{i}=collage(x1:x2,:);
-        %outCell{i}=zeros(x2-x1+1,W);
     end
     %% Predict
     [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelpath,gpu);            
@@ -37,7 +37,7 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
     noOfParts=size(collageCell,1);
     outCell=cell(noOfParts,1);
     %% SVM    
-    if modelType==ModelType.CompactSVM
+    if  modelType==ModelType.CompactSVM
         fprintf('Loading PCA coefficent....');
         svm_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
         svm_pcamu=load(strcat(dirPath,'/data_mean.txt'));   
@@ -92,12 +92,13 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
         fprintf('Finding Prediction...');
         tic
         n=size(b,1);
-        output=zeros(size(cellColl,2),1);  
+        output=zeros(size(cellColl,1),1);  
         clear cellColl;   
-        parfor i=1:n    
+        for i=1:n 
             feature=b{i};
             [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
             output(i)=positiveScore; 
+            %figure, imshow(reshape(cellColl{i},84,84),[]);
         end
         toc
         %%  Correcting the dimension of o/p
@@ -107,13 +108,15 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
             outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');
             outImg = padarray(outImg,[ceil((H-patchRegion(1))/2), 0],0,'post');
         else % odd
-            outImg = padarray(outImg,[(H-patchRegion(1))/2, 0],0,'both');       
+            outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');
+            outImg = padarray(outImg,[ceil((H-patchRegion(1))/2), 0],0,'post');      
         end   
         if mod(W,2)==0 % even
             outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'pre');
             outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');
         else % odd
-            outImg = padarray(outImg,[0, (W-patchRegion(2))/2],0,'both');       
+            outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'pre');
+            outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');      
         end
         outCell{section}=outImg;
    end        

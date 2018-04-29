@@ -1,0 +1,9 @@
+molecular imaging techniques: X-ray crystallography and single particle cryo electron microscopy 
+
+visual proteomics: the molecular mapping of whole cells
+
+Cryo electron tomography (cryo ET): 
+It is a three-dimensional imaging technique that is suitable for imaging biological structures with a resolution in the order of nanometres
+
+Used for:  Visualization of the three-dimensional shape of single and unique structures like
+macromolecular complexes, pleomorphic viruses, small bacteria and slices or thin areas of cell

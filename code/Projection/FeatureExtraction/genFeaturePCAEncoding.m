@@ -64,6 +64,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     %% 1.1 Finding PCA and Encoding Image Vectors
     fprintf('Finding PCA...');
     [coeff,score,~,~,~,mu]=pca(dataMtx);    fprintf('Done\n');
+      
     fprintf('Coeff Dim: %dx%d \n',size(coeff,1),size(coeff,2));
     fprintf('mu Dim: %dx%d \n',size(mu,1),size(mu,2));
     fprintf('Data Coeff Dim: %dx%d \n',size(score,1),size(score,2));
