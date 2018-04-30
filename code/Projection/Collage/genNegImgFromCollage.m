@@ -8,8 +8,8 @@ function [ outputStatus ] = genNegImgFromCollage(collageDirPath,cellDim,collageG
     gridRow=collageGridDim(1); gridCol=collageGridDim(2);
     H=cellH*gridRow; W=cellW*gridCol;
         
-    centerShiftHOffest=floor(cellH/4);
-    centerShiftWOffest=floor(cellW/4);
+    centerShiftHOffest=floor(cellH/8);
+    centerShiftWOffest=floor(cellW/8);
     halfCH=cellH/2;
     halfCW=cellW/2;
     
@@ -37,6 +37,7 @@ function [ outputStatus ] = genNegImgFromCollage(collageDirPath,cellDim,collageG
     
     %% Generate Collage    
     for c=1:noOfCollage
+        fprintf('Colage: %d\n',c);
         name=fileNameList{c};        
         collagePath=strcat(collageDirPath,'/',num2str(c),'.mat');
         struct=load(collagePath);
@@ -81,7 +82,7 @@ function [ outputStatus ] = genNegImgFromCollage(collageDirPath,cellDim,collageG
             dim=size(img);
             imgNum=negImgPerCollage*(c-1) + i;
             if (dim(1) == cellH && dim(2) == cellW)
-                img=img/max(img(:));                
+                img=img/max(img(:));
                 imwrite(im2double(img),strcat(savedImgDir,'/',num2str(imgNum),'.jpg'));
                 save(strcat(savedRawImgDir,'/',num2str(imgNum),'.mat'),'img');
             else

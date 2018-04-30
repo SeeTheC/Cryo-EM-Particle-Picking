@@ -15,10 +15,18 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSa
         % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
         
         %basepath=strcat(basepath,'/_data-Y,Z','v.10'); % img dimension: [333,333]
-        %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2'); % img dimension: [333,333]       
-        %basepath=strcat(basepath,'/_data-proj-2211','v.10'); % img dimension: [178,178]       
-        %basepath=strcat(basepath,'/_data-proj-5693','v.20'); % img dimension: [333,333]
-        basepath=strcat(basepath,'/_data-proj-5689','v.10');  % img dimension: [278,278]
+        %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale500'); % img dimension: [333,333]       
+        
+        %basepath=strcat(basepath,'/_data-proj-5693','v.30'); % img dimension: [333,333]                    
+        %basepath=strcat(basepath,'/_data-proj-5693','v.30','/Noisy_downscale0'); % img dimension: [333,333]                
+        
+        %basepath=strcat(basepath,'/_data-proj-2211','v.20'); % img dimension: [98,98]       
+        basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500'); % img dimension: [178,178]               
+        
+        %basepath=strcat(basepath,'/_data-proj-5689','v.20');  % img dimension: [278,278]
+        %basepath=strcat(basepath,'/_data-proj-5689','v.20','/Noisy_downscale500');  % img dimension: [278,278]        
+        %basepath=strcat(basepath,'/_data-proj-5762','v.10');  % img dimension: [444,444]
+        %basepath=strcat(basepath,'/_data-proj-5762','v.10','/Noisy_downscale2');  % img dimension: [444,444]
 
         savepath=strcat(basepath,'/model_',timestamp); 
         mkdir(savepath);
@@ -64,7 +72,10 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     %% 1.1 Finding PCA and Encoding Image Vectors
     fprintf('Finding PCA...');
     [coeff,score,~,~,~,mu]=pca(dataMtx);    fprintf('Done\n');
-      
+    %noOfVectors=500;
+    %coeff=coeff(:,1:noOfVectors);
+    %score=score(:,1:noOfVectors);
+
     fprintf('Coeff Dim: %dx%d \n',size(coeff,1),size(coeff,2));
     fprintf('mu Dim: %dx%d \n',size(mu,1),size(mu,2));
     fprintf('Data Coeff Dim: %dx%d \n',size(score,1),size(score,2));
@@ -75,20 +86,23 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     savePCAPath = savePCATrainPath;
 
     mkdir(saveDataPath);
-    dlmwrite(strcat(saveDataPath,'/positive_data.txt'),dataMtx);
+    %dlmwrite(strcat(saveDataPath,'/positive_data.txt'),dataMtx);
     % Adding classification lable
-    y=zeros(size(dataMtx,1),1);
-    y(:)=1;dataMtx=horzcat(dataMtx,y);
-    dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx);
+    %y=zeros(size(dataMtx,1),1);
+    %y(:)=1;dataMtx=horzcat(dataMtx,y);
+    %dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx);
 
     mkdir(savePCAPath);
     dlmwrite(strcat(savePCAPath,'/pca_coeff.txt'),coeff);
-    dlmwrite(strcat(savePCAPath,'/data_coeff.txt'),score);
+    %dlmwrite(strcat(savePCAPath,'/data_coeff.txt'),score);
     dlmwrite(strcat(savePCAPath,'/data_mean.txt'),mu);
 
     % Adding classification lable
     y=zeros(size(score,1),1);
     y(:)=1;score=horzcat(score,y);
+    
+    score=vertcat(score,score); %temp
+    
     dlmwrite(strcat(savePCAPath,'/complete_data_coeff.txt'),score);
     clear dataMtx;
     clear score;
@@ -104,13 +118,13 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     saveDataPath = saveDataTrainPath;
     savePCAPath = savePCATrainPath;
 
-    dlmwrite(strcat(saveDataPath,'/negative_data.txt'),dataMtx);
-    dlmwrite(strcat(savePCAPath,'/negdata_coeff.txt'),negData_coeff);
+    %dlmwrite(strcat(saveDataPath,'/negative_data.txt'),dataMtx);
+    %dlmwrite(strcat(savePCAPath,'/negdata_coeff.txt'),negData_coeff);
 
     % Adding classification lable
-    y=zeros(size(dataMtx,1),1);
-    y(:)=-1;dataMtx=horzcat(dataMtx,y);
-    dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx,'-append');
+    %y=zeros(size(dataMtx,1),1);
+    %y(:)=-1;dataMtx=horzcat(dataMtx,y);
+    %dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx,'-append');
 
     y=zeros(size(negData_coeff,1),1);
     y(:)=-1;negData_coeff=horzcat(negData_coeff,y);
@@ -140,13 +154,13 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     mkdir(saveDataPath);
     mkdir(savePCAPath);
 
-    dlmwrite(strcat(saveDataPath,'/positive_data.txt'),dataMtx);
-    dlmwrite(strcat(savePCAPath,'/data_coeff.txt'),posData_coeff);
+    %dlmwrite(strcat(saveDataPath,'/positive_data.txt'),dataMtx);
+    %dlmwrite(strcat(savePCAPath,'/data_coeff.txt'),posData_coeff);
 
     % Adding classification lable
-    y=zeros(size(dataMtx,1),1);
-    y(:)=1;dataMtx=horzcat(dataMtx,y);
-    dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx);
+    %y=zeros(size(dataMtx,1),1);
+    %y(:)=1;dataMtx=horzcat(dataMtx,y);
+    %dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx);
 
     y=zeros(size(posData_coeff,1),1);
     y(:)=1;posData_coeff=horzcat(posData_coeff,y);
@@ -168,13 +182,13 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     saveDataPath = saveDataTestPath;
     savePCAPath = savePCATestPath;
 
-    dlmwrite(strcat(saveDataPath,'/negative_data.txt'),dataMtx);
-    dlmwrite(strcat(savePCAPath,'/negdata_coeff.txt'),negData_coeff);
+    %dlmwrite(strcat(saveDataPath,'/negative_data.txt'),dataMtx);
+    %dlmwrite(strcat(savePCAPath,'/negdata_coeff.txt'),negData_coeff);
 
     % Adding classification lable
-    y=zeros(size(dataMtx,1),1);
-    y(:)=-1;dataMtx=horzcat(dataMtx,y);
-    dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx,'-append');
+    %y=zeros(size(dataMtx,1),1);
+    %y(:)=-1;dataMtx=horzcat(dataMtx,y);
+    %dlmwrite(strcat(saveDataPath,'/complete_data.txt'),dataMtx,'-append');
 
     y=zeros(size(negData_coeff,1),1);
     y(:)=-1;negData_coeff=horzcat(negData_coeff,y);

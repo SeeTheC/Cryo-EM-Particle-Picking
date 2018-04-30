@@ -38,10 +38,9 @@ function [ outputStatus ] = genNegImgFromCollagev3(collageDirPath,collageNum,cel
     struct=load(collagePath);
     collage=struct.img;
     %collage=collage(1:cellH+2,:); %debug   
-    %stride=100; offset=30; imgNum=0;
     stride=5; offset=30; imgNum=0;
-    hEndIdx=min(hEndIdx,hStartIdx + (stride*500));
-    for i=hStartIdx:stride:hEndIdx
+    %hEndIdx=min(hEndIdx,hStartIdx + (stride*333));
+    for i=hStartIdx:stride:hEndIdx  
         fprintf('Procession %d/%d..\n',i,hEndIdx);
         for j=wStartIdx:stride:wEndIdx           
             cx=i;cy=j;
@@ -69,7 +68,7 @@ function [ outputStatus ] = genNegImgFromCollagev3(collageDirPath,collageNum,cel
             if (dim(1) == cellH && dim(2) == cellW)
                 img=img/max(img(:));                
                 imwrite(im2double(img),strcat(savedImgDir,'/',num2str(imgNum),'.jpg'));
-                %save(strcat(savedRawImgDir,'/',num2str(imgNum),'.mat'),'img');
+                save(strcat(savedRawImgDir,'/',num2str(imgNum),'.mat'),'img');
             else
                 fprintf('Error: Dim of Img didnt match. Please verfy code\n');
                 outputStatus='Error.';

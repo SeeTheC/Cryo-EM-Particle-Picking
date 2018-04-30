@@ -1,20 +1,15 @@
-function [ outImg,outLoc ] = processScaledModelLnCollageGpu2(collage,patchDim,predLocation,modelType,dirPath,modelpath)
+function [ outImg,outLoc ] = processScaledModelL2CollageGpu2(collage,predLocation,patchDim,modelType,dirPath,modelpath)
     %% INIT 1.0
-    gpu=1;             
+    gpu=0             
     noOflocation=size(predLocation,1);
     %% Cropping the image at mutliple location
     % Divinding collages Parts into different parts. Because RAM & GPU
     % memory will not sufficient to process the full collage at a time.    
-    procParallelPatch=800;
-    if noOflocation>procParallelPatch
-        noOfParts=floor(noOflocation/procParallelPatch);       
-    else
-        noOfParts=1;
-    end
-    
-    [locationCell]=divideInSection(predLocation,collage,noOfParts);
+    processParallelPatch=600;
+    noOfParts=2;       
+    [locationCell]=divideInsection(predLocation,collage,noOfParts);
     %% Predict
-    [outImg,outLoc]=predictUsingGPU(collage,locationCell,patchDim,modelType,dirPath,modelpath,gpu);            
+    [outImg,outLoc]=predictUsingGPU(collageCell,locationCell.patchDim,modelType,dirPath,modelpath,gpu);            
 
 end
 function [outImg,outputLoc]=predictUsingGPU(collage,locationCell,patchDim,modelType,dirPath,modelpath,gpu)    
@@ -52,49 +47,40 @@ function [outImg,outputLoc]=predictUsingGPU(collage,locationCell,patchDim,modelT
     end
     
     %% Process on each part of collage
-    fprintf('Processing...\n')
     for section=1:noOfParts
         fprintf('............[%d/%d].........\n',section,noOfParts);
         location=locationCell{section};    
+        resLoc=zeros(size(location,1),3);
         %% Creating Cell Array array
         tic
         fprintf('Creating Cell Array array...\n');
-        [cellColl,location]=getCroppedImgMtx(collage,location,patchDim);
-        fprintf('No Of Location:%d \nEach of Dim:%dx%d',size(cellColl,2),patchDim(1),patchDim(2));
+        cellColl=getCroppedImgMtx(collage,location,patchDim);
+        fprintf('No Of Location:%d \nEach of Dim:%dx%d',size(colmat,1),patchDim(1),patchDim(2));
         fprintf('Done...\n');
         toc
-        if (size(cellColl,1)==0)
-            fprintf('[Info] No Correct Patch to process');
-            continue;
-        end
         %% Processing
         tic
         fprintf('Processing...');
-        b=arrayfun(@perPatchMethod,cellColl','UniformOutput',false);
+        b=arrayfun(@perPatchMethod,cellColl,'UniformOutput',false);
         fprintf('Done...\n');
         toc
         fprintf('Finding Prediction...');
         tic
         n=size(b,1);
-        output=zeros(n,1);  
+        output=zeros(size(cellColl,2),1);  
         clear cellColl;   
         parfor i=1:n               
             feature=b{i};
             [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);            
-            output(i)=positiveScore;            
+            output(i)=[x,y,positiveScore];             
         end
-        fprintf('Done.\n')
         toc        
-        %%  Marking score on Image
-        fprintf('Marking Score on Image...');
-        resLoc=zeros(n,3);
-        for i=1:n
+        %%  Marking score on Image Managing New location
+        for i=1:size(location,1)
             x=location(i,1);y=location(i,2);
-            outImg(x,y)=output(i);
-            resLoc(i,:)=[x,y,output(i)];
+            outImg(x,y)=output;
         end
         outputLoc=vertcat(outputLoc,resLoc);
-        fprintf('Done.\n')
    end        
 
 end
@@ -105,7 +91,7 @@ end
 % Divide location in Section for memory 
 function [croppedLocCell]=divideInSection(location,collage,noOfParts)
     noOfLocation=size(location,1);
-    sectionSize=floor(noOfLocation/noOfParts);    
+    sectionSize=floor(noOfLocation/2);    
     croppedLocCell=cell(noOfParts,1);
     for i=1:noOfParts
         offset=(i-1)*sectionSize;
@@ -122,21 +108,18 @@ function [croppedLocCell]=divideInSection(location,collage,noOfParts)
 end
 
 % Returns the cropped patch at passes "location" point as cell
-function [cropCol,resLoc]=getCroppedImgMtx(collage,location,patchDim)
+function [cropCol]=getCroppedImgMtx(collage,location,patchDim)
     [H,W]=size(collage); 
     patchH=patchDim(1);patchW=patchDim(2);   
     noOfLocation=size(location,1);
-    cropCol={}; resLoc=[];noOfPatch=1;
-    noOfPatch=1;
+    cropCol=cell(noOfLocation,1);
     for i=1:noOfLocation
       cx=location(i,1);cy=location(i,2);
       [x1,x2,y1,y2] = getPatchCoordinat(cx,cy,patchDim);
-      if (x1<=0 || x2>H || y1 <=0 || y2 > W)
+      if (x1<0 || x2>H || y1 <0 || y2 > W)
         continue;
       end
       patch=collage(x1:x2,y1:y2);
-      cropCol{noOfPatch} = reshape(patch,1,patchH*patchW); 
-      resLoc=vertcat(resLoc,[cx,cy]);
-      noOfPatch=noOfPatch+1;
+      cropCol{i} = reshape(patch,1,patchH*patchW);
     end
 end

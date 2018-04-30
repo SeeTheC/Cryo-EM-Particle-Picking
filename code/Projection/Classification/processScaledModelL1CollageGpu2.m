@@ -1,29 +1,26 @@
 function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelType,dirPath,modelpath)
     %% INIT 1.0
-    gpu=1;
+    gpu=1
     [H,W]=size(collage); 
     patchH=patchDim(1);patchW=patchDim(2);    
     halfPatchH=patchH/2;       
     %% Divinding collages Parts 
     % Divinding collages Parts into different parts. Because RAM & GPU
     % memory will not sufficient to process the full collage at a time.    
-    
-    %partImgHeight=patchH+0;
-    %noOfParts= H-partImgHeight;  
-    
-    noOfParts=10;    
-    partImgHeight= floor(H/noOfParts);  
+    partImgHeight=patchH+100;
+    noOfParts= ceil(H/partImgHeight);  
+    fprintf('# of parts: %d\n', noOfParts);
+    %noOfParts=10;    
+    %partImgHeight= floor(H/noOfParts);  
    
     collageCell=cell(noOfParts,1);    
-    fprintf('\n***# of parts: %d partImgHeight:%d patchH:%d H:%d\n', noOfParts,partImgHeight,patchH,H);
-    
     if partImgHeight < halfPatchH
         fprintf('\n*** ERROR: EACH PART HEIGHT IS LESS THAN PATCH HEIGHT. SET noOfParts Value Correctly');
         return;
     end
     for i=1:noOfParts
-        offset=(i-1)*partImgHeight;
-        x1=offset-floor(halfPatchH)+1;
+        offset=(i-1)*partImgHeight+1;
+        x1=offset-floor(halfPatchH);
         x2=offset+partImgHeight-1+floor(halfPatchH);
         if x1 < 1
             x1=1;
@@ -31,13 +28,11 @@ function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelTyp
         if x2 > H
             x2=H;
         end
-        %fprintf('%d) Height:%d x1:%d x2:%d\n',i,x2-x1+1,x1,x2);        
         collageCell{i}=collage(x1:x2,:);
         %outCell{i}=zeros(x2-x1+1,W);
     end
     %% Predict
-    [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelpath,gpu);  
-    
+    [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelpath,gpu);            
 end
 
 function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelpath,gpu)    
@@ -81,8 +76,7 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
     for section=1:noOfParts
         fprintf('............[%d/%d].........\n',section,noOfParts);
         [H,W]=size(collageCell{section});      
-        patchRegion=[H-patchH+1,W-patchW+1];    
-        fprintf('\n patchRegion:%d H:%d\n',patchRegion(1),H);     
+        patchRegion=[H-patchH+1,W-patchW+1];     
         %% Creating Cell Array array
         tic
         fprintf('Creating Cell Array array...\n');
@@ -108,7 +102,6 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
             feature=b{i};
             [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
             output(i)=positiveScore; 
-            fprintf('%d) ps: %f\n',i,positiveScore);
         end
         toc
         %%  Correcting the dimension of o/p
@@ -118,17 +111,13 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
             outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');
             outImg = padarray(outImg,[ceil((H-patchRegion(1))/2), 0],0,'post');
         else % odd
-            %outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'both'); 
-            outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');    
-            outImg = padarray(outImg,[ceil((H-patchRegion(1))/2), 0],0,'post');
+            outImg = padarray(outImg,[(H-patchRegion(1))/2, 0],0,'both');       
         end   
         if mod(W,2)==0 % even
             outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'pre');
             outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');
         else % odd
-            %outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'both'); 
-            outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'pre');
-            outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');      
+            outImg = padarray(outImg,[0, (W-patchRegion(2))/2],0,'both');       
         end
         outCell{section}=outImg;
    end        

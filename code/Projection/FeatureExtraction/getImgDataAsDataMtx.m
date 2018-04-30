@@ -16,22 +16,24 @@ end
 function [dataMtx,recordCount]=readDatabase(dirpath,dim,downscaleBy,maxNumberSample)
     fprintf('Reading dataset...\n');
     fprintf('dataset:%s\n',dirpath);
+    
     row=dim(1);col=dim(2);
     
     imgFolder = dir(dirpath);
     imgFolder=natsortfiles({imgFolder.name});
     % removing  file "." and ".."
     imgFolder=imgFolder(3:end);
-    totalNumOfImg=numel(imgFolder);   
+    totalNumOfImg=numel(imgFolder);       
     numOfImg=min(maxNumberSample,totalNumOfImg);  
     randomOrder=randperm(totalNumOfImg,numOfImg);
     imgFolder=imgFolder(randomOrder);
-    dataMtx=zeros(numOfImg,(row*col));        
-    
-    
+    dataMtx=zeros(numOfImg,(row*col));      
+
+
     fprintf('Totalfiles:%d\n',totalNumOfImg);
     fprintf('Taking files:%d randomly\n',numOfImg);
     
+
     for j = 1:numOfImg
             %fileName=imgFilesPerPerson(j);fileName=fileName{1};
             fileName=imgFolder(j);
@@ -47,6 +49,7 @@ function [dataMtx,recordCount]=readDatabase(dirpath,dim,downscaleBy,maxNumberSam
             end
             %img = imread(fullFilePath);
             [irow,icol] = size(img);
+            %fprintf('%d) %s : %d-%d\n',j, fileName,irow,icol);
             vector = reshape(img,1,irow*icol);                      
             dataMtx(j,:) = vector;
     end

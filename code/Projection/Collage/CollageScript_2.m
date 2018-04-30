@@ -2,7 +2,8 @@
 fprintf('Creating Collage for Train and Test +ve Data...\n');
 addpath('../DataCorrection/');
 %% Init
-
+clear all;
+server = 1
 timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
 if server
     basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
@@ -13,25 +14,42 @@ end
 %% -------------------------[Config]-----------------------------
 % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
 
+%dataset: 1
 %basepath=strcat(basepath,'/_data-Y,Z','v.10');
-basepath=strcat(basepath,'/_data-proj-5693','v.20');
-trainDP = strcat(basepath,'/train');
-testDP = strcat(basepath,'/test');
-%trainDP = strcat(basepath,'/Noisy_downscale2','/train');
-%testDP = strcat(basepath,'/Noisy_downscale2','/test');
-cellH=333; cellW=333; % Per cell one image
-
-
-%basepath=strcat(basepath,'/_data-proj-2211','v.10');
+%basepath=strcat(basepath,'/_data-proj-5693','v.30');
 %trainDP = strcat(basepath,'/train');
 %testDP = strcat(basepath,'/test');
-%cellH=178; cellW=178; % Per cell one image
+%cellH=333; cellW=333; % Per cell one image
+
+
+%dataset: 2
+basepath=strcat(basepath,'/_data-proj-2211','v.20');
+trainDP = strcat(basepath,'/train');
+testDP = strcat(basepath,'/test');
+cellH=98; cellW=98; % Per cell one image
+
+% dataset: 3
+%basepath=strcat(basepath,'/_data-proj-5689','v.20');
+%trainDP = strcat(basepath,'/train');
+%testDP = strcat(basepath,'/test');
+%cellH=278; cellW=278; % Per cell one image
+
+
+% dataset: 4
+%basepath=strcat(basepath,'/_data-proj-5762','v.20');
+%trainDP = strcat(basepath,'/train');
+%testDP = strcat(basepath,'/test');
+%cellH=444; cellW=444; % Per cell one image
+
 
 
 gridRow=6; gridCol=6;
 noOfCollage=200
 %------------------------------------------------------
-%%
+
+trainDPRaw=strcat(trainDP,'/raw_img');
+testDPRaw=strcat(testDP,'/raw_img');
+
 
 saveTrainCollagePath=strcat(trainDP,'/collage_',timestamp);
 saveTrainCollageDPImg = strcat(saveTrainCollagePath,'/img');
@@ -57,7 +75,11 @@ dataPath{2,5}=getDirFilesName(dataPath{2,1});
 dataPath{2,6}=size(dataPath{2,5},2);
 
 
+%gridRow=2; gridCol=2;
+
+
 noOfDataFolder=size(dataPath,1);
+
 % size of original image
 %% Create Dir
 for i=1:noOfDataFolder
@@ -77,7 +99,9 @@ for dir=1:noOfDataFolder
     fprintf(fid, '# Angles and Number Format Matrix');
     fprintf(fid, '\n# Matrix are shown in vector form where indexing is from top to bottom and left to right, similar to matlab format');
 
-    for i=1:noOfCollage          
+    for i=1:noOfCollage  
+        fprintf('collage:%d\n',i);
+
         randImgNum=randi([1,perDataFolderImgCount],gridRow,gridCol);
         collage=zeros(cellH*gridRow,cellW*gridCol);    
         for r=1:gridRow
@@ -100,6 +124,7 @@ for dir=1:noOfDataFolder
         fprintf(fid, 'Folder = ');            
         fprintf(fid, '\nImageNumber  =');
         fprintf(fid, ' %d',randImgNum);
+        %fprintf('cmax%s\n', max(collage(:)));
         img=collage/max(collage(:));
         imwrite(im2double(img),strcat(dataPath{dir,3},'/',num2str(i),'.jpg'));
         % saveing raw img

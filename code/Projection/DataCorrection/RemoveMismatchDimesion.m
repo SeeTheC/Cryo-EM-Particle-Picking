@@ -1,7 +1,7 @@
 % Synchonize the raw and img data consistent
 % Usually it uses for removing the outlier in case of  -neg images
 %% Init
-server=0
+server=1
 timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
 if server
     basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';

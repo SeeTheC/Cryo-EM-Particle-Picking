@@ -1,0 +1,37 @@
+% Generate negative samples from collage
+% Negative Samples images means ovelap image
+fprintf('Creating NEGATIVE Img for Train and Test +ve Collage Data...\n');
+addpath('../DataCorrection/');
+%% Init
+
+if server
+    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
+else
+    basepath='/media/khursheed/4E20CD3920CD2933/MTP/';  
+end
+
+% SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
+trainCollageDP = strcat(basepath,'/_data-Y,Z','v.10','/train/','collage1_10x10');
+testCollageDP = strcat(basepath,'/_data-Y,Z','v.10','/test/','collage1_10x10');
+
+collageDirPath{1,1}=strcat(trainCollageDP,'/raw_img');
+collageDirPath{1,2}=size(getDirFilesName(collageDirPath{1,1}),2);
+collageDirPath{2,1}=strcat(testCollageDP,'/raw_img');
+collageDirPath{1,2}=size(getDirFilesName(collageDirPath{1,1}),2);
+
+
+% Per cell one image
+cellH=333; cellW=333;
+gridRow=10; gridCol=10;
+
+%  # collage in the specified folder
+noOfCollage=2;
+negImgPerCollage=10;
+%% Generate
+outputStatus  = genNegImgFromCollage(collageDirPath, ...
+                                     [cellH,cellW],...
+                                     [gridRow,gridCol],...
+                                     noOfCollage,...
+                                     negImgPerCollage);
+disp(outputStatus);
+%%

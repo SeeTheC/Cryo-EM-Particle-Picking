@@ -1,7 +1,7 @@
 %% EMD 3D Projection
 addpath(genpath('../../lib/3dviewer'));
 addpath(genpath('../MapFileReader/'));
-
+server = 1
 %% Reading Emd virus
  dataNum = 5693;
  datasetPath='~/git/Dataset/EM';
@@ -81,6 +81,7 @@ projection1 = permute(proj_data1,[1,3,2]);
 
 %% Show Image
 
+if ~server
 figure('name','EMD-5693: Angle-0 rad')
 %ithProj=squeeze(proj_data(:,2,:))';
 ithProj=projection1(:,:,2)';
@@ -88,9 +89,10 @@ ithProj=ithProj/max(ithProj(:)); % normalizing intensites value
 imshow(ithProj);
 title('\fontsize{10}{\color{magenta}EMD-5693: Angle-0 rad}');
 colorbar,axis on, axis tight, xlabel('X-Axis'); ylabel('Y-Axis');
+end
 
 
-%% Save img
-imwrite(uint8(ithProj),'EMD-5693.jpg');
-save('projection.mat','ithProj');
 %%
+% save img
+imwrite(ithProj,'EMD-5693.jpg');
+

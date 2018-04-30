@@ -4,7 +4,6 @@ addpath(genpath('../../lib/3dviewer'));
 addpath(genpath('../MapFileReader/'));
 %% Reading Emd virus 
  datasetPath='~/git/Dataset/EM';
- 
  % ------------------------[Config]------------------------------
  %em5693File=strcat(datasetPath,'/EMD-5693','/map','/EMD-5693.map'); dataNum=5693;  emFile=em5693File;
  %em1003File=strcat(datasetPath,'/EMD-1003','/map','/emd_1003.map'); dataNum=1003;  emFile=em1003File;
@@ -14,6 +13,7 @@ addpath(genpath('../MapFileReader/'));
  em5762File=strcat(datasetPath,'/EMD-5762','/map','/EMD-5762.map');  dataNum=5762;  emFile=em5762File;
  
  % --------------------------------------------------------------  
+
  %% Set Particle
  data=mapReader(emFile);
  dim=size(data);
@@ -21,8 +21,8 @@ addpath(genpath('../MapFileReader/'));
  %%  Projection
  
  % INIT
- totalAnglesY = linspace2(0, 2*pi, 10);
- totalAnglesZ = linspace2(1, pi, 10);
+ totalAnglesY = linspace2(0, 2*pi, 65);
+ totalAnglesZ = linspace2(0, pi,  65);
  
  % For Testing
  %totalAnglesY = linspace2(10, 2*pi, 10);
@@ -48,8 +48,8 @@ fprintf(fid, 'img_no \t max_int_value \t angleY \t angleZ \n');
 
 %% Create Projection
 angles=totalAnglesY; 
-for i=1:anglesCountZ     
-     fprintf('Projection: %d /%d\n',i,anglesCountZ);
+for i=1:anglesCountZ 
+     fprintf('Projection: %d /%d\n',i,anglesCountZ);    
      angleZ=totalAnglesZ(i);          
      projection=take3DProjectionWith2Angles(data,angles,angleZ);
      

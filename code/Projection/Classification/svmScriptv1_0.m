@@ -1,4 +1,3 @@
-% This is Single train model i.e not scaleup model 
 %% 2-Class Classification using SVM on Virus Projection Image
 % Feature uses as PCA base dimensional reduction
 

@@ -43,7 +43,7 @@ File: Collage\GenerateNegDataScript_3.m
 File: DataCorrection\synRawAndImgDataScript.m 
 
 6. Feature Extraction
-File: FeatureExtraction\MainFeatureFinding
+File: FeatureExtraction\MainFeatureFinding_4
  	*** 1.PCA ****
  	i. set image dim : imgdim=[178,178] 
  	ii. set noOfScales, default 3
