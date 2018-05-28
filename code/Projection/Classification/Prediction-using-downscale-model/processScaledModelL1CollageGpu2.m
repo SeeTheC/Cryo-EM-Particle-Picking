@@ -7,16 +7,11 @@ function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelTyp
     %% Divinding collages Parts 
     % Divinding collages Parts into different parts. Because RAM & GPU
     % memory will not sufficient to process the full collage at a time.    
-    
-    %partImgHeight=patchH+0;
-    %noOfParts= H-partImgHeight;  
-    
     noOfParts=10;    
-    partImgHeight= floor(H/noOfParts);  
-   
+    partImgHeight= floor(H/noOfParts);     
     collageCell=cell(noOfParts,1);    
     fprintf('\n***# of parts: %d partImgHeight:%d patchH:%d H:%d\n', noOfParts,partImgHeight,patchH,H);
-    
+ 
     if partImgHeight < halfPatchH
         fprintf('\n*** ERROR: EACH PART HEIGHT IS LESS THAN PATCH HEIGHT. SET noOfParts Value Correctly');
         return;
@@ -31,13 +26,11 @@ function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelTyp
         if x2 > H
             x2=H;
         end
-        %fprintf('%d) Height:%d x1:%d x2:%d\n',i,x2-x1+1,x1,x2);        
         collageCell{i}=collage(x1:x2,:);
         %outCell{i}=zeros(x2-x1+1,W);
     end
     %% Predict
-    [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelpath,gpu);  
-    
+    [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelpath,gpu);            
 end
 
 function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelpath,gpu)    
@@ -54,6 +47,22 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
         trainedModel=struct.compactSVMModel;  
         modelType=ModelType.CompactSVM;
         fprintf('Done ..\n');
+    elseif modelType==ModelType.RandomForest
+        fprintf('Loading PCA coefficent....');
+        rf_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
+        rf_pcamu=load(strcat(dirPath,'/data_mean.txt'));
+        struct=load(strcat(modelpath,'/rfModel.mat'));
+        trainedModel=struct.rfModel;
+        modelType=ModelType.RandomForest;
+        fprintf('Done ..\n');
+    elseif modelType==ModelType.DecisionTree
+        fprintf('Loading PCA coefficent....');
+        dt_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
+        dt_pcamu=load(strcat(dirPath,'/data_mean.txt'));
+        struct=load(strcat(modelpath,'/dtModel.mat'));
+        trainedModel=struct.dtModel;
+        modelType=ModelType.DecisionTree;
+        fprintf('Done ..\n');
     end
     %% Gpu
     if gpu ==1 
@@ -61,6 +70,12 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
         if modelType==ModelType.CompactSVM    
             svm_pcaCoeff=gpuArray(svm_pcaCoeff);
             svm_pcamu=gpuArray(svm_pcamu);
+        elseif modelType==ModelType.RandomForest 
+            rf_pcaCoeff=gpuArray(rf_pcaCoeff);
+            rf_pcamu=gpuArray(rf_pcamu);
+        elseif modelType==ModelType.DecisionTree 
+            dt_pcaCoeff=gpuArray(dt_pcaCoeff);
+            dt_pcamu=gpuArray(dt_pcamu);
         end
         for section=1:noOfParts
             collageCell{section}=gpuArray(collageCell{section});
@@ -69,8 +84,15 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
     end
     %% Per Patch methods
     function [ feature ] = perPatchMethod(cellCol)   
-         vector=cellCol{1};   
-         feature=bsxfun(@minus,vector,svm_pcamu)*svm_pcaCoeff;  
+         vector=cellCol{1}; 
+         % Extacting Feature
+        if modelType==ModelType.CompactSVM
+            feature=bsxfun(@minus,vector,svm_pcamu)*svm_pcaCoeff;
+        elseif modelType==ModelType.RandomForest
+            feature=bsxfun(@minus,vector,rf_pcamu)*rf_pcaCoeff;
+        elseif modelType==ModelType.DecisionTree
+            feature=bsxfun(@minus,vector,dt_pcamu)*dt_pcaCoeff;
+        end
          clear vector;
          feature=gather(feature);
          %[~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
@@ -81,8 +103,8 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
     for section=1:noOfParts
         fprintf('............[%d/%d].........\n',section,noOfParts);
         [H,W]=size(collageCell{section});      
-        patchRegion=[H-patchH+1,W-patchW+1];    
-        fprintf('\n patchRegion:%d H:%d\n',patchRegion(1),H);     
+        patchRegion=[H-patchH+1,W-patchW+1];     
+        fprintf('\n patchRegion:%d H:%d\n',patchRegion(1),H); 
         %% Creating Cell Array array
         tic
         fprintf('Creating Cell Array array...\n');
@@ -108,7 +130,6 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
             feature=b{i};
             [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
             output(i)=positiveScore; 
-            fprintf('%d) ps: %f\n',i,positiveScore);
         end
         toc
         %%  Correcting the dimension of o/p
@@ -118,17 +139,17 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
             outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');
             outImg = padarray(outImg,[ceil((H-patchRegion(1))/2), 0],0,'post');
         else % odd
-            %outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'both'); 
-            outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');    
+            %outImg = padarray(outImg,[(H-patchRegion(1))/2, 0],0,'both'); 
+            outImg = padarray(outImg,[floor((H-patchRegion(1))/2), 0],0,'pre');
             outImg = padarray(outImg,[ceil((H-patchRegion(1))/2), 0],0,'post');
         end   
         if mod(W,2)==0 % even
             outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'pre');
             outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');
         else % odd
-            %outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'both'); 
+            %outImg = padarray(outImg,[0, (W-patchRegion(2))/2],0,'both');     
             outImg = padarray(outImg,[0, floor((W-patchRegion(2))/2)],0,'pre');
-            outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');      
+            outImg = padarray(outImg,[0, ceil((W-patchRegion(2))/2)],0,'post');
         end
         outCell{section}=outImg;
    end        

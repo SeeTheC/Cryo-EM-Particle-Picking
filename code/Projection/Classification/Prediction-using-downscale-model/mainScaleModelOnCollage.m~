@@ -22,12 +22,13 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isT
     collageNum='1';
     % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE        
     
-    %basepath=strcat(basepath,'/_data-proj-5689v.20'); 
-    basepath=strcat(basepath,'/_data-Y,Zv.10','/Noisy_downscale500');         
+    %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
+    basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
     %basepath=strcat(basepath,'/_data-proj-2211','v.20');        %imsize: [98,98] 
     %basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500');  %imsize: [178,178]                  
     %basepath=strcat(basepath,'/_data-proj-5689','v.20');    %imsize: [278,278] 
-    %basepath=strcat(basepath,'/_data-proj-5689','v.20','/Noisy_downscale500'); %imsize: [278,278];        
+    %basepath=strcat(basepath,'/_data-proj-5689','v.20','/Noisy_downscale500'); %imsize: [278,278] 
+         ;        
 
     testPath=strcat(basepath,'/test');
     testCollagePath= strcat(testPath,'/collage1_6x6','/raw_img/',collageNum,'.mat');
@@ -43,7 +44,7 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isT
     struct=load(testCollagePath);
     collage=struct.img;
     fprintf('Config: Collage:%s.mat \n',collageNum);
-    minProbabiltyScore=0.4;
+    minProbabiltyScore=0.6;
     fprintf('Config: Min. Prob Score:%f \n',minProbabiltyScore);
     fprintf('-------------------------------------------------\n')
     
@@ -75,11 +76,7 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isT
         else
             location=coordUpscaleAndAddPt(prevLoc(:,[1,2]),scale(i+1)/scale(i),true);
             [prevStageImg,outLoc]=predictOnSpecLocCollage(server,collage,collageNum,imgdim,location,modelnumber,downscale,basepath,savepath,modelType,isThreaded,gpu);                       
-            location=[];
-            if size(outLoc,1) >0
-                location=outLoc(outLoc(:,3)>minProbabiltyScore,:);
-            end
-                
+            location=outLoc(outLoc(:,3)>minProbabiltyScore,:);
         end                
         prevLoc=location;
     end
@@ -223,8 +220,8 @@ function [mergedImg]=mergeParallelCollage(imgCell,cellDim,orgCollageDim)
     threadImgHeight= floor(H/thread);
     halfPatchH=cellH/2;    
     for i=1:thread
-        offset=(i-1)*threadImgHeight;
-        x1=offset-floor(halfPatchH)+1;
+        offset=(i-1)*threadImgHeight+1;
+        x1=offset-floor(halfPatchH);
         x2=offset+threadImgHeight-1+floor(halfPatchH);
         if x1 <1
             x1=1;

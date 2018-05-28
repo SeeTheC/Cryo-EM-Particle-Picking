@@ -5,7 +5,7 @@ function [ outImg,outLoc ] = processScaledModelLnCollageGpu2(collage,patchDim,pr
     %% Cropping the image at mutliple location
     % Divinding collages Parts into different parts. Because RAM & GPU
     % memory will not sufficient to process the full collage at a time.    
-    procParallelPatch=800;
+    procParallelPatch=1000;
     if noOflocation>procParallelPatch
         noOfParts=floor(noOflocation/procParallelPatch);       
     else
@@ -32,6 +32,22 @@ function [outImg,outputLoc]=predictUsingGPU(collage,locationCell,patchDim,modelT
         trainedModel=struct.compactSVMModel;  
         modelType=ModelType.CompactSVM;
         fprintf('Done ..\n');
+    elseif modelType==ModelType.RandomForest
+        fprintf('Loading PCA coefficent....');
+        rf_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
+        rf_pcamu=load(strcat(dirPath,'/data_mean.txt'));
+        struct=load(strcat(modelpath,'/rfModel.mat'));
+        trainedModel=struct.rfModel;
+        modelType=ModelType.RandomForest;
+        fprintf('Done ..\n');
+    elseif modelType==ModelType.DecisionTree
+        fprintf('Loading PCA coefficent....');
+        dt_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
+        dt_pcamu=load(strcat(dirPath,'/data_mean.txt'));
+        struct=load(strcat(modelpath,'/dtModel.mat'));
+        trainedModel=struct.dtModel;
+        modelType=ModelType.DecisionTree;
+        fprintf('Done ..\n');
     end
     %% Gpu
     if gpu ==1 
@@ -39,14 +55,26 @@ function [outImg,outputLoc]=predictUsingGPU(collage,locationCell,patchDim,modelT
         if modelType==ModelType.CompactSVM    
             svm_pcaCoeff=gpuArray(svm_pcaCoeff);
             svm_pcamu=gpuArray(svm_pcamu);
+        elseif modelType==ModelType.RandomForest 
+            rf_pcaCoeff=gpuArray(rf_pcaCoeff);
+            rf_pcamu=gpuArray(rf_pcamu);
+        elseif modelType==ModelType.DecisionTree 
+            dt_pcaCoeff=gpuArray(dt_pcaCoeff);
+            dt_pcamu=gpuArray(dt_pcamu);
         end
         collage=gpuArray(collage);
         fprintf('Done \n');    
     end
     %% Per Patch methods
     function [ feature ] = perPatchMethod(cellCol)   
-         vector=cellCol{1};   
-         feature=bsxfun(@minus,vector,svm_pcamu)*svm_pcaCoeff;  
+         vector=cellCol{1};
+         if modelType==ModelType.CompactSVM
+             feature=bsxfun(@minus,vector,svm_pcamu)*svm_pcaCoeff;
+         elseif modelType==ModelType.RandomForest
+             feature=bsxfun(@minus,vector,rf_pcamu)*rf_pcaCoeff;
+         elseif modelType==ModelType.DecisionTree
+             feature=bsxfun(@minus,vector,dt_pcamu)*dt_pcaCoeff;
+         end
          clear vector;
          feature=gather(feature);
     end

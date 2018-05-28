@@ -15,6 +15,16 @@ function [outImg,outLoc] = predictScaledModelLnCollage(collage,patchDim,location
         svm_pcamu=load(strcat(dirPath,'/data_mean.txt'));        
         struct=load(strcat(modelpath,'/compactSVMModel.mat'));
         trainedModel=struct.compactSVMModel;        
+    elseif modelType==ModelType.RandomForest
+        rf_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
+        rf_pcamu=dlmread(strcat(dirPath,'/data_mean.txt'));
+        struct=load(strcat(modelpath,'/rfModel.mat'));
+        trainedModel=struct.rfModel;
+    elseif modelType==ModelType.DecisionTree
+        dt_pcaCoeff=dlmread(strcat(dirPath,'/pca_coeff.txt'));
+        dt_pcamu=dlmread(strcat(dirPath,'/data_mean.txt'));
+        struct=load(strcat(modelpath,'/dtModel.mat'));
+        trainedModel=struct.dtModel;
     end
     fprintf('Init Done. Processing data..\n');
     %% ON SPECIFIC loacation Patch
@@ -30,6 +40,10 @@ function [outImg,outLoc] = predictScaledModelLnCollage(collage,patchDim,location
         % Extacting Feature
         if modelType==ModelType.CompactSVM
             feature = reduceDimByPCA(svm_pcaCoeff,svm_pcamu,patch);
+        elseif modelType==ModelType.RandomForest
+            feature = reduceDimByPCA(rf_pcaCoeff,rf_pcamu,patch);
+        elseif modelType==ModelType.DecisionTree
+            feature = reduceDimByPCA(dt_pcaCoeff,dt_pcamu,patch);
         end
         [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
         outLoc(i,:)=[cx,cy,positiveScore];    

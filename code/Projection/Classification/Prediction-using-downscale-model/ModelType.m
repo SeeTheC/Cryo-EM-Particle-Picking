@@ -1,6 +1,8 @@
 classdef ModelType
     enumeration
       CompactSVM
+      RandomForest
+      DecisionTree
     end
     
     properties
