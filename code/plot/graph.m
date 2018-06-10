@@ -47,22 +47,29 @@ title('\fontsize{10}{\color{magenta}EM-5689 Valdiate set (20% of train) accuracy
 set(gca,'XTick',nosielevel );
 
 %% Test plot
+
+teststage3=em5693_teststage3;
+teststage2=em5693_teststage2;
+teststage1=em5693_teststage1;
+
 %teststage3=em2211_teststage3;
 %teststage2=em2211_teststage2;
 %teststage1=em2211_teststage1;
 
-teststage3=em5689_teststage3;
-teststage2=em5689_teststage2;
-teststage1=em5689_teststage1;
+%teststage3=em5689_teststage3;
+%teststage2=em5689_teststage2;
+%teststage1=em5689_teststage1;
 
 figure;
 plot(nosielevel,teststage3),hold on,
 plot(nosielevel,teststage2),hold on,
 plot(nosielevel,teststage1),hold on,
-legend('stage-3 classifier','stage-2 classifier','stage-1 classifier'),
+lgd=legend('stage-3 classifier','stage-2 classifier','stage-1 classifier','Location','best'),
 grid on,
-xlabel('Total intensity division factor');
-ylabel('Prediction accuracy in percent');
-title('\fontsize{10}{\color{magenta}EM-5689 Test set accuracy}');
+xlabel('Total intensity division factor','FontSize',24);
+ylabel('Prediction accuracy in percent','FontSize',24);
+title('\fontsize{16}{\color{magenta}EM-5693 Test set accuracy}');
 set(gca,'XTick',nosielevel );
-
+set(findall(gca, 'Type', 'Line'),'LineWidth',3);
+lgd.FontSize = 24;
+set(gca,'FontSize',20);

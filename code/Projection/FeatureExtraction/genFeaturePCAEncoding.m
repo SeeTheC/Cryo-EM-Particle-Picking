@@ -7,13 +7,19 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSa
         %% INIT
         status='fail';
         timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
-        if server
+        if server==1
             basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
+        elseif server==2
+            basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset';       
         else
             basepath='/media/khursheed/4E20CD3920CD2933/MTP';  
         end
         % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
+        %------------------------------[Real Dataset: server:2]------------------------------------
+        basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
         
+        %------------------------------[End. Real Dataset: server:2]------------------------------------        
+        %------------------------------[Simulated]------------------------------------
         %basepath=strcat(basepath,'/_data-Y,Z','v.10'); % img dimension: [333,333]
         %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale500'); % img dimension: [333,333]       
         
@@ -21,13 +27,14 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSa
         %basepath=strcat(basepath,'/_data-proj-5693','v.30','/Noisy_downscale0'); % img dimension: [333,333]                
         
         %basepath=strcat(basepath,'/_data-proj-2211','v.20'); % img dimension: [98,98]       
-        basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500'); % img dimension: [178,178]               
+        %basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500'); % img dimension: [178,178]               
         
         %basepath=strcat(basepath,'/_data-proj-5689','v.20');  % img dimension: [278,278]
         %basepath=strcat(basepath,'/_data-proj-5689','v.20','/Noisy_downscale500');  % img dimension: [278,278]        
         %basepath=strcat(basepath,'/_data-proj-5762','v.10');  % img dimension: [444,444]
         %basepath=strcat(basepath,'/_data-proj-5762','v.10','/Noisy_downscale2');  % img dimension: [444,444]
-
+        %------------------------------[End-Simulated]--------------------------------
+        
         savepath=strcat(basepath,'/model_',timestamp); 
         mkdir(savepath);
         fid = fopen(strcat(savepath,'/model_info.txt'), 'w+');
@@ -65,7 +72,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     imgHeight=ceil(imgdim(1)/downscale);imgWidth=ceil(imgdim(2)/downscale);
     
     %% 1. Fetch Train Data Images
-    fprintf('Reading +ve Train...');    
+    fprintf('-----------------[Reading +ve Train]---------------------------\n');    
     [dataMtx,totalRecord]=getImgDataAsDataMtx(trainDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);
     
@@ -100,15 +107,13 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     % Adding classification lable
     y=zeros(size(score,1),1);
     y(:)=1;score=horzcat(score,y);
-    
-    score=vertcat(score,score); %temp
-    
+            
     dlmwrite(strcat(savePCAPath,'/complete_data_coeff.txt'),score);
     clear dataMtx;
     clear score;
     fprintf('Done.\n');
     %% 1.3 Fetch -ve Data Images
-    fprintf('Reading -ve Train...');    
+    fprintf('------------------[Reading -ve Train--------------------------------\n');    
     [dataMtx,totalRecord]=getImgDataAsDataMtx(trainNegDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);    
     % Finding -ve Data Eigen Coeffient 
@@ -139,7 +144,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     fprintf('Finding eigen coeff for Negative value ... \n');
 
     %% 2.1 Reading Test Data and Finding its eigen coeff
-    fprintf('Reading +ve Test...');    
+    fprintf('--------------------[Reading +ve Test]-------------------------\n');    
     [dataMtx,totalRecord]=getImgDataAsDataMtx(testDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);
     
@@ -171,7 +176,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     fprintf('Done.\n');
     
     %% 2.3 TEST DATA: Fetching Negative data
-    fprintf('Reading -ve Test...');    
+    fprintf('-----------------------[Reading -ve Test]---------------------\n');    
     [dataMtx,totalRecord]=getImgDataAsDataMtx(testNegDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);
     

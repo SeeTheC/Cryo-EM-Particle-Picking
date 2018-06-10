@@ -33,7 +33,6 @@ function [dataMtx,recordCount]=readDatabase(dirpath,dim,downscaleBy,maxNumberSam
     fprintf('Totalfiles:%d\n',totalNumOfImg);
     fprintf('Taking files:%d randomly\n',numOfImg);
     
-
     for j = 1:numOfImg
             %fileName=imgFilesPerPerson(j);fileName=fileName{1};
             fileName=imgFolder(j);

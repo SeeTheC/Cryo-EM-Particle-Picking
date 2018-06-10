@@ -1,0 +1,20 @@
+%% INIT
+config=struct;
+config.server=2;
+config.imgdim=[216,216];
+config.scale=[1,2,4,8];
+config.modelType=ModelType.RandomForest;
+config.isThreaded=false;
+config.gpu=true;
+
+config.collageDir='collage';   
+config.dataset='/_data-proj-10025v.10';
+
+config.collageNum='14sep05c_c_00007gr_00021sq_00017hl_00002es_c';        
+config.model='/model_1-2-4-8_18000';
+config.savepathPrefix='tr_18000';
+config.maxCollageSize=[5000,5000];    
+config.minProbabiltyScore=0.1;
+
+
+%mainScaleModelOnCollage(2,[216,216],[1,2,4,8],ModelType.RandomForest,false,true)

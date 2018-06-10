@@ -1,18 +1,28 @@
 % Used for generating multi scale model
 % Call: genSVMModelv2_0(1,3)
+% RealDataset: genSVMModelv2_0(2,4)
 function [ status ] = genSVMModelv2_0(server,noOfScales)
-    %% INIT        
+    %% INIT       
     status='fail';                
-    if server
+    if server==1
         basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
+    elseif server==2
+        basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset';               
     else
         basepath='/media/khursheed/4E20CD3920CD2933/MTP/';  
     end
+    %------------------------------[Real Dataset: server:2]------------------------------------
+    basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
+    basepath=strcat(basepath,'/model_1-2-4-8_12000');    
+    %------------------------------[End. Real Dataset: server:2]------------------------------------        
+    
+    %------------------------------[Simulated]------------------------------------
+            
     % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
     %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
     %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale500');             
     %basepath=strcat(basepath,'/_data-proj-2211','v.20');            
-    basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500');            
+    %basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500');            
     %basepath=strcat(basepath,'/_data-proj-5693','v.20');    
     
     %basepath=strcat(basepath,'/_data-proj-5693','v.30');
@@ -22,11 +32,12 @@ function [ status ] = genSVMModelv2_0(server,noOfScales)
     %basepath=strcat(basepath,'/_data-proj-5689','v.20');    
     %basepath=strcat(basepath,'/_data-proj-5689','v.20','/Noisy_downscale500');    
     
-
-    basepath=strcat(basepath,'/model_1-2-4');
-    
+    %basepath=strcat(basepath,'/model_1-2-4');    
+    %------------------------------[End-Simulated]--------------------------------
+        
+        
      %% Generating SVM Model
-    for i=1:noOfScales 
+    for i=4:noOfScales 
            fprintf('.............Generating SVM Model:%d..............\n',i);
            generate(i,basepath);
     end
@@ -76,26 +87,38 @@ function generate(modelNumber,basepath)
     tic
     svmModel = fitcsvm(trainX,trainY, ...
                         'ClassNames',{'-1','1'},... 
-                        'IterationLimit',1e8,...
+                        'IterationLimit',1e7,...                        
+                        'Verbose',1,...     
+                        'ScoreTransform','logit',...                        
                         'Standardize',true);
+    %                    'ScoreTransform','logit',...  
+    %                    'KernelFunction','rbf',... 
+    %                    'KernelFunction','polynomial',...
+    %                    'PolynomialOrder',3,...
+                        
     time=toc
     fprintf(fid,' Time required for training (sec): %f\n',time);
     
     %%              
     % Extract trained, compact classifier
     %compactSVMModel = compact(svmModel);
-    compactSVMModel = svmModel.fitPosterior();
-    compactSVMModel = compact(compactSVMModel);
+    fprintf('Compressing Model.\n');
+    %compactSVMModel = svmModel.fitPosterior();
+    %compactSVMModel = compact(compactSVMModel);    
+    compactSVMModel = compact(svmModel);
     clear svmModel;
     %% Save Trained Model
+    fprintf('Saving Model.\n');
     save(strcat(savepath,'/compactSVMModel.mat'),'compactSVMModel');
     clear compactSVMModel;
     %% Load Trained Model
+    fprintf('Loading Model.\n');
     struct=load(strcat(savepath,'/compactSVMModel.mat'));
     compactSVMModel=struct.compactSVMModel;
     whos('compactSVMModel')
 
     %% Validate test
+    fprintf('Validating Model.\n');
     [predLabelCell,PostProbs] = predict(compactSVMModel,validateX);
 
     table(validateY,predLabelCell,PostProbs(:,2),'VariableNames',{'TrueLabels','PredictedLabels','PosClassPosterior'})
@@ -107,7 +130,7 @@ function generate(modelNumber,basepath)
     fprintf(fid,'Validate Accuracy: %f\n',validateAccuracy);
     
     %% 3. Check for Test set
-
+    fprintf('Model on Test set .\n');
     [predLabelCell,PostProbs] = predict(compactSVMModel,testX);
     table(testY,predLabelCell,PostProbs(:,2),'VariableNames', {'TrueLabels','PredictedLabels','PosClassPosterior'})
 

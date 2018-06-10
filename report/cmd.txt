@@ -1,0 +1,3 @@
+convert gif to png
+convert -verbose -coalesce 10025-l.gif EMPIAR-10025.png
+

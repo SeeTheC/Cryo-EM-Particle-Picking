@@ -1,0 +1,8 @@
+-------------Decision tree
+time - 8-10mins
+-------------RandomForest
+time - 40-45mins
+
+5689---------
+rf - 29 mins
+dt - 5 mins

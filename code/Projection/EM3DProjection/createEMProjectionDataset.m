@@ -1,6 +1,6 @@
 %% EMD 3D Projection
 addpath(genpath('/home/khursheed/git/Cryp-EM/code/lib/3dviewer'));
-addpath(genpath('../MapFileReader/'));
+addpath(genpath('MapFileReader/'));
 %% Reading Emd virus
  dataNum = 5693;
  datasetPath='~/git/Dataset/EM';

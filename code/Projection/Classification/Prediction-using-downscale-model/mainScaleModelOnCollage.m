@@ -7,50 +7,80 @@
 %            :Set thread value in code
 % gpu: mainScaleModelOnCollage(1,[333,333],[1,2,4],ModelType.RandomForest,false,true)
 %     : Set noOfParts value in code depending on GPU memory
-
+% RealDataset-gpu: 
+% mainScaleModelOnCollage(2,[216,216],[1,2,4,8],ModelType.CompactSVM,false,true)
+% mainScaleModelOnCollage(2,[216,216],[1,2,4,8],ModelType.RandomForest,false,true)
 function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isThreaded,gpu)
+    addpath(genpath('../../MapFileReader/'));
     status='failed';
     %% Init    
-    if server
+    if server == 1
         basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
+    elseif server==2
+        basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset';                           
     else
-        basepath='/home/ayush/mtech/subj4/aip/project';  
+        basepath='/media/khursheed/4E20CD3920CD2933/MTP/'; 
     end    
     fprintf('----------------[Config]-------------------\n')
     fprintf('Config: IsThread: %d\n',isThreaded);
     fprintf('Config: Gpu:%d \n',gpu);
-    collageNum='1';
-    % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE        
+    %collageNum=1;
+    %collageNum='14sep05c_00024sq_00003hl_00002es_c';    
+    collageNum='14sep05c_c_00007gr_00021sq_00017hl_00002es_c';        
+    model='/model_1-2-4-8_18000';
+    savepathPrefix='tr_18000';
+    maxCollageSize=[5000,5000];    
+    minProbabiltyScore=0.2;    
+    %------------------------------[Real Dataset: server:2]------------------------------------
+    collageDir='collage';   
+    basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]                       
+    %------------------------------[End. Real Dataset: server:2]------------------------------------        
     
+    
+    %------------------------------[Simulated]------------------------------------
+    
+    % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE   
+    %collageDir='collage1_6x6'
     %basepath=strcat(basepath,'/_data-proj-5689v.20'); 
-    basepath=strcat(basepath,'/_data-Y,Zv.10','/Noisy_downscale500');         
+    %basepath=strcat(basepath,'/_data-Y,Zv.10','/Noisy_downscale500');         
     %basepath=strcat(basepath,'/_data-proj-2211','v.20');        %imsize: [98,98] 
     %basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500');  %imsize: [178,178]                  
     %basepath=strcat(basepath,'/_data-proj-5689','v.20');    %imsize: [278,278] 
     %basepath=strcat(basepath,'/_data-proj-5689','v.20','/Noisy_downscale500'); %imsize: [278,278];        
-
+    
+    %------------------------------[End-Simulated]--------------------------------
+    
+    savepathPrefix=strcat(savepathPrefix,'_maxHW',num2str(maxCollageSize(1)),'x',num2str(maxCollageSize(2)));    
+    
     testPath=strcat(basepath,'/test');
-    testCollagePath= strcat(testPath,'/collage1_6x6','/raw_img/',collageNum,'.mat');
+    if server==2
+        testCollagePath= strcat(testPath,"/",collageDir,'/raw_img/',collageNum,'.mrc');  
+        [collage,~,~,~,~]=ReadMRC(testCollagePath);        
+        collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));        
+    else
+        testCollagePath= strcat(testPath,collageDir,'/raw_img/',collageNum,'.mat');
+        struct=load(testCollagePath);
+        collage=struct.img;
+        collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));
+    end   
+    
+    
     mt='';
     if modelType==ModelType.CompactSVM   
-		mt='svm'; 
+		mt='svm-poly-3'; 
     elseif modelType==ModelType.RandomForest
 		mt='ramdomForest';
     elseif modelType==ModelType.DecisionTree
 		mt='decisionTree';
     end
-    savepath= strcat(testPath,'/collage1_6x6','/processed_img/',mt,'/',collageNum);    
-    struct=load(testCollagePath);
-    collage=struct.img;
+    savepath= strcat(testPath,'/',collageDir,'/processed_img/',mt,'/',collageNum,'_',savepathPrefix);    
     fprintf('Config: Collage:%s.mat \n',collageNum);
-    minProbabiltyScore=0.4;
     fprintf('Config: Min. Prob Score:%f \n',minProbabiltyScore);
     fprintf('-------------------------------------------------\n')
     
     %isThreaded=0
     %gpu=1
-    %% Perdict    
-    model='/model_1-2-4';
+    %% Perdict        
     basepath=strcat(basepath,model);savepath=strcat(savepath,model);
     noOfScale=numel(scale);
     for i=noOfScale:-1:1

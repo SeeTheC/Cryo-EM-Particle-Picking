@@ -1,35 +1,56 @@
 % Used for generating multi scale model
-% Call: genSVMModelv2_0(1,3)
+% Call: randomForestv2(1,3)
 function [ status ] = randomForestv2(server,noOfScales)
     %% INIT        
     status='fail';                
-    if server
+    if server==1
         basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
+    elseif server==2
+        basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset';                  
     else
-        basepath='/home/ayush/mtech/subj4/aip/project';  
+       basepath='/media/khursheed/4E20CD3920CD2933/MTP/';   
     end
-    % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
-    basepath=strcat(basepath,'/_data-proj-5689v.20'); 
-    basepath=strcat(basepath,'/Noisy_downscale500');
-    %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale2');         
-    %basepath=strcat(basepath,'/_data-proj-2211','v.10');        
+   %------------------------------[Real Dataset: server:2]------------------------------------
+    basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
+    %basepath=strcat(basepath,'/model_1-2-4-8');
+    basepath=strcat(basepath,'/model_1-2-4-8_18000');    
+    noOfThreads=10;
+    %------------------------------[End. Real Dataset: server:2]------------------------------------        
     
-    basepath=strcat(basepath,'/model_1-2-4');
+    %------------------------------[Simulated]------------------------------------
+            
+    % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
+    %basepath=strcat(basepath,'/_data-Y,Z','v.10'); 
+    %basepath=strcat(basepath,'/_data-Y,Z','v.10','/Noisy_downscale500');             
+    %basepath=strcat(basepath,'/_data-proj-2211','v.20');            
+    %basepath=strcat(basepath,'/_data-proj-2211','v.20','/Noisy_downscale500');            
+    %basepath=strcat(basepath,'/_data-proj-5693','v.20');    
+    
+    %basepath=strcat(basepath,'/_data-proj-5693','v.30');
+    %basepath=strcat(basepath,'/_data-proj-5693','v.30','/Noisy_downscale2');        
+    %basepath=strcat(basepath,'/_data-proj-5762','v.10');    
+    %basepath=strcat(basepath,'/_data-proj-5762','v.10','/Noisy_downscale2');
+    %basepath=strcat(basepath,'/_data-proj-5689','v.20');    
+    %basepath=strcat(basepath,'/_data-proj-5689','v.20','/Noisy_downscale500');    
+    
+    %basepath=strcat(basepath,'/model_1-2-4');    
+    %------------------------------[End-Simulated]--------------------------------
+    
     
      %% Generating SVM Model
     for i=1:noOfScales 
            fprintf('.............Generating random Forest Model:%d..............\n',i);
-           generate(i,basepath);
+           generate(i,basepath,noOfThreads);
     end
     status='complete';
 end
 
-function generate(modelNumber,basepath)
+function generate(modelNumber,basepath,noOfThreads)
 
     datapath= strcat(basepath,'/pca_data');
     trainFile= strcat(datapath,'/train','/model-',num2str(modelNumber),'/complete_data_coeff.txt');
     testFile= strcat(datapath,'/test','/model-',num2str(modelNumber),'/complete_data_coeff.txt');
-    savepath = strcat(basepath,'/rf/','/model-',num2str(modelNumber));
+    savepath = strcat(basepath,'/rf-2/','/model-',num2str(modelNumber));
     mkdir(savepath);
     %trainFile= strcat(datapath,'/train_set1.txt');
     %testFile= strcat(datapath,'/test_set1.txt');
@@ -37,6 +58,7 @@ function generate(modelNumber,basepath)
     
     
     %% Reading Train and Test dataset
+    fprintf('Loading Train and test set');
     trainDataSet=load(trainFile);
     testDataSet=load(testFile);
 
@@ -45,7 +67,7 @@ function generate(modelNumber,basepath)
     randomIndex=randperm(size(testDataSet,1),size(testDataSet,1));
     testDataSet=testDataSet(randomIndex,:);
     
-    fprintf('here');
+    
     %%
     % Separating data and label
     validateSet=0.15; 
@@ -64,11 +86,20 @@ function generate(modelNumber,basepath)
     fprintf(fid,'# Test DataPoint:%d\n',size(testDataSet,1));
                     
     %% 1. Traing: random forest Model
-
-    rfModel = TreeBagger(50,trainX,trainY, ...
-                    'ClassNames',{'-1','1'});
-                
+    fprintf('Training Model');
+    delete(gcp('nocreate'));
+    mypool = parpool(noOfThreads);
+    tic
+    paroptions = statset('UseParallel',true);
+    rfModel = TreeBagger(80,trainX,trainY, ...        
+                    'ClassNames',{'-1','1'},...
+                    'Method','classification',...                    
+                    'Options',paroptions...
+                );            
+    toc
+    rfModel
     %% Save Trained Model
+    fprintf('Saving  Model');
     save(strcat(savepath,'/rfModel.mat'),'rfModel');
     clear rfModel;
     %clear compactSVMModel;
@@ -79,6 +110,7 @@ function generate(modelNumber,basepath)
 
 
     %% validate test
+    fprintf('Validating  Model');
     [predLabelCell,PostProbs] = predict(RFModel,validateX);
 
     table(validateY,predLabelCell,PostProbs(:,2),'VariableNames',{'TrueLabels','PredictedLabels','PosClassPosterior'})

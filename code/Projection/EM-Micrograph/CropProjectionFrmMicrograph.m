@@ -1,20 +1,21 @@
-%%
+%% Init
+clear all;
+
 addpath('../DataCorrection/');
 addpath(genpath('../MapFileReader/'));
 addpath(genpath('../Classification'));
-%% Init
-clear all;
-server=0;
+
+server=1;
 fprintf('Server:%d\n',server);
 timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
 if server
-    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset';
+    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset/T20_Proteasome/ftp.ebi.ac.uk/pub/databases/empiar/archive';
 else
-    basepath='/media/khursheed/4E20CD3920CD2933/MTP/RealDataset';  
+    basepath='/media/khursheed/4E20CD3920CD2933/MTP/RealDataset'; 
+    basepath=strcat(basepath,'/Micrograph');
 end
-basepath=strcat(basepath,'/Micrograph');
 %----------------------------[Config]-------------------------------
-sample='EM-10025';
+sample='10025';
 micrographDir='14sep05c_averaged_196';
 coordinateMetadata='run1_shiny_mp007_data_dotstar.txt.csv';
 patchSize=([18,18]).*12;
