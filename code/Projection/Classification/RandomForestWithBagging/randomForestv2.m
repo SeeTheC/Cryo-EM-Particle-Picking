@@ -13,8 +13,10 @@ function [ status ] = randomForestv2(server,noOfScales)
    %------------------------------[Real Dataset: server:2]------------------------------------
     basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
     %basepath=strcat(basepath,'/model_1-2-4-8');
-    basepath=strcat(basepath,'/model_1-2-4-8_18000');    
-    noOfThreads=10;
+    %basepath=strcat(basepath,'/model_1-2-4-8_18000');    
+    basepath=strcat(basepath,'/model_4-8-12_18000');    
+    
+    noOfThreads=4;
     %------------------------------[End. Real Dataset: server:2]------------------------------------        
     
     %------------------------------[Simulated]------------------------------------
@@ -50,7 +52,7 @@ function generate(modelNumber,basepath,noOfThreads)
     datapath= strcat(basepath,'/pca_data');
     trainFile= strcat(datapath,'/train','/model-',num2str(modelNumber),'/complete_data_coeff.txt');
     testFile= strcat(datapath,'/test','/model-',num2str(modelNumber),'/complete_data_coeff.txt');
-    savepath = strcat(basepath,'/rf-2/','/model-',num2str(modelNumber));
+    savepath = strcat(basepath,'/rf-with-50trees/','/model-',num2str(modelNumber));
     mkdir(savepath);
     %trainFile= strcat(datapath,'/train_set1.txt');
     %testFile= strcat(datapath,'/test_set1.txt');
@@ -91,7 +93,7 @@ function generate(modelNumber,basepath,noOfThreads)
     mypool = parpool(noOfThreads);
     tic
     paroptions = statset('UseParallel',true);
-    rfModel = TreeBagger(80,trainX,trainY, ...        
+    rfModel = TreeBagger(50,trainX,trainY, ...        
                     'ClassNames',{'-1','1'},...
                     'Method','classification',...                    
                     'Options',paroptions...

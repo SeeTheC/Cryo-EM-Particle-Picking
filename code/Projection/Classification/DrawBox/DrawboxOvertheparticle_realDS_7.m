@@ -15,9 +15,9 @@ end
 %------------------------------[Real Dataset: server:2]------------------------------------
     collageDir='collage';   
     modelType=ModelType.RandomForest;   
-    model='model_1-2-4-8_5000x5000';        
+    model='model_1-2-4-8_18000';        
     maxCollageSize=[5000,5000];    
-    probThershold=0.4;
+    probThershold=0.6;
     
     %modelType=ModelType.CompactSVM;       
     %model='model_1-2-4-8_2000x2000';      
@@ -27,8 +27,17 @@ end
     %model='model_1-2-4-8';
     
     cellH=216; cellW=216;
-    supressBoxSize=[216,216];    
-    collageNum='14sep05c_00024sq_00003hl_00002es_c'; 
+    supressBoxSize=[216,216];   
+    scaleModel=4;
+    downscaleModel=8;
+    %collageNum='14sep05c_00024sq_00003hl_00002es_c'; 
+    %collageNum='14sep05c_c_00007gr_00021sq_00016hl_00003es_c';
+    %collageNumDir='14sep05c_c_00007gr_00021sq_00016hl_00003es_c_tr_18000_maxHW5000x5000';
+    
+    %14sep05c_c_00007gr_00021sq_00017hl_00002es_c
+    collageNum='14sep05c_c_00007gr_00021sq_00017hl_00002es_c';
+    collageNumDir='14sep05c_c_00007gr_00021sq_00017hl_00002es_c_tr_18000_maxHW5000x5000';
+    
     basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [216,216] 
     coordMetadataPath=strcat(basepath,'/10025/','run1_shiny_mp007_data_dotstar.txt.csv');    
 %------------------------------[END Real Dataset: server:2]------------------------------------
@@ -46,22 +55,30 @@ end
 testPath=strcat(basepath,'/test','/',collageDir);
 testCollageRawPath= strcat(testPath,'/processed_img/',mt);
 %testCollageRawPath= strcat(testPath,'/processed_img/ramdomForest');
-testCollageRawPath= strcat(testCollageRawPath,'/',collageNum);
-testCollageRawPath=strcat(testCollageRawPath,'/',model,'/model-1');
+testCollageRawPath= strcat(testCollageRawPath,'/',collageNumDir);
+testCollageRawPath=strcat(testCollageRawPath,'/',model,'/model-',num2str(scaleModel));
 name=strcat(testCollageRawPath,'/',collageNum,'.mat');
 struct=load(name);
 scoreCollage=struct.outImg;
 
 if server==2
     originalCollageName= strcat(testPath,'/raw_img/',collageNum,'.mrc');  
-    [collage,~,~,~,~]=ReadMRC(originalCollageName);
-    collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));
+    [orgCollage,~,~,~,~]=ReadMRC(originalCollageName);
+    orgCollage=orgCollage(1:maxCollageSize(1),1:maxCollageSize(2));    
 else
     originalCollageName=strcat(testPath,'/raw_img/',collage,'.mat');
     struct=load(originalCollageName);
-    collage=struct.img;
+    orgCollage=struct.img;
+    orgCollage=orgCollage(1:maxCollageSize(1),1:maxCollageSize(2));
 end
 
+if(scaleModel>1)
+    collage=imresize(orgCollage,1/downscaleModel);
+    cellH=cellH/downscaleModel; cellW=cellW/downscaleModel;
+    supressBoxSize=supressBoxSize./downscaleModel;
+else
+    collage=orgCollage;
+end    
 %collage=imresize(collage,(1/8));
 [H,W]=size(collage);
 
@@ -75,17 +92,28 @@ boxSize=[cellH,cellW];
 [cX,cY]=findBoxLocation(scoreCollage,boxSize,probThershold,supressBoxSize,1000);
 noOfRect=size(cX,1);
 fprintf('noOfRect:%d .Done...\n',noOfRect);
+%% Config & Mark Center
+drawingConfig.originalMg=orgCollage;
+drawingConfig.visualDownsample=downscaleModel;  
+%drawingConfig.downscaleModel=downscaleModel;
+drawingConfig.predictedLoc=[cX*downscaleModel,cY*downscaleModel];
+drawingConfig.trueKnownLoc=trueKnownCoord;
+drawingConfig.savepath='.';
+drawingConfig.maxCollageSize=maxCollageSize;
+% MarkCenter
+[predImg,predTrueImg] = markCenterParticle(drawingConfig);
 %% Drawing box
 fprintf('Drawing Box...\n');
-%img=collage;
-downsample=8;
+%img=collage1026506
+
+downsample=1;
 img=imresize(collage,1/downsample);
 img=img-min(img(:));
 img=img/max(img(:));
 
 lineWidth=2;    markerSize=3;    predictColor='red';
 
-%mark center
+% mark center
 % predicted center    
 for r= 1:noOfRect
     cx=cX(r)/downsample;cy=cY(r)/downsample;
@@ -94,7 +122,8 @@ end
 fprintf('Done.\n');
 %figure,imshow(img,[]);
 %title({'\fontsize{10}{\color{magenta}RandomForest 2000x2000 Micrograph}','\fontsize{10}{\color{red}[Downsampled by 8 for better visualization]}'});
-
+% Save Center mark
+imwrite(img,'Predicted.png');
 % Drawing True Center
 fprintf('Drawing True Center...\n');
 img1=img;
@@ -103,7 +132,7 @@ n=size(trueKnownCoord,1);
 %maxCollageSize
 for idx=1:n
     row=trueKnownCoord(idx,:);
-    cx=row.x;cy=row.y;
+    cx=row.x/downscaleModel;cy=row.y/downscaleModel;
     if(cx>maxCollageSize(1) || cy >maxCollageSize(2))
         continue;
     end
@@ -118,8 +147,8 @@ imshow(img1,[]),impixelinfo;
 title({'\fontsize{10}{\color{magenta} SVM: Green->true & Re->predicted 2000x2000 Micrograph}','\fontsize{10}{\color{red}[Downsampled by 8 for better visualization]}'});
 %title({'\fontsize{10}{\color{magenta} RF: Green->true & Re->predicted 2000x2000 Micrograph}','\fontsize{10}{\color{red}[Downsampled by 8 for better visualization]}'});
 
-%% Save Center mark
-imwrite(img1,'center_mark.png');
+% Save Center mark
+imwrite(img1,'True_and_Predicted.png');
 %% Draw rectangle
 fprintf('Drawing rectangle...\n');
 fh = figure;

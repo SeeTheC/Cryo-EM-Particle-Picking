@@ -1,0 +1,12 @@
+****Result:
+True Loc Count:	263 
+Total Pred. Count:	799 
+Correctly Pred. Count:	241 
+Extra Predicted Count:	558 
+Min Translation Error:	0 pixel
+Max Translation Error:	102 pixel
+Avg Translation Error:	25 pixel
+Med Translation Error:	14 pixel
+
+Accuracy:	0.916350
+Precision:	0.431900

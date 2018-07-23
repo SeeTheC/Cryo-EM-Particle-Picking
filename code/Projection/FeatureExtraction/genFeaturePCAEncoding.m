@@ -3,7 +3,7 @@
 % Lower scaled model will be used for fast destection of object using ML
 % methods like SVM, Randomforest etc.
 
-function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSample)
+function [ status ] = genFeaturePCAEncoding(server,imgdim,dScale,maxNumberSample)
         %% INIT
         status='fail';
         timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
@@ -14,6 +14,7 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSa
         else
             basepath='/media/khursheed/4E20CD3920CD2933/MTP';  
         end
+        noOfScales=numel(dScale);
         % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
         %------------------------------[Real Dataset: server:2]------------------------------------
         basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
@@ -40,10 +41,10 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSa
         fid = fopen(strcat(savepath,'/model_info.txt'), 'w+');
         fprintf(fid, '# Model info\n');
         fprintf(fid, 'Inital ImgHeight:%d ImgWidth:%d\n',imgdim(1),imgdim(2));
-        fprintf(fid, '# scale: %d\n',noOfScales);
+        fprintf(fid, 'No. of scale: %d\n',noOfScales);
         %% Generating Model
         for i=1:noOfScales 
-               downscale=2^(i-1);
+               downscale=dScale(i);               
                fprintf('.............Generating Model:%d..............\n',i);
                fprintf(fid,'...................[Model %d].............\n',i);
                imgHeight=ceil(imgdim(1)/downscale);imgWidth=ceil(imgdim(2)/downscale);
@@ -78,10 +79,10 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     
     %% 1.1 Finding PCA and Encoding Image Vectors
     fprintf('Finding PCA...');
-    [coeff,score,~,~,~,mu]=pca(dataMtx);    fprintf('Done\n');
-    %noOfVectors=500;
-    %coeff=coeff(:,1:noOfVectors);
-    %score=score(:,1:noOfVectors);
+    [coeff,score,eignVal,~,~,mu]=pca(dataMtx);    fprintf('Done\n');
+    noOfVectors=min(size(eignVal,1),1000);
+    coeff=coeff(:,1:noOfVectors);
+    score=score(:,1:noOfVectors);
 
     fprintf('Coeff Dim: %dx%d \n',size(coeff,1),size(coeff,2));
     fprintf('mu Dim: %dx%d \n',size(mu,1),size(mu,2));

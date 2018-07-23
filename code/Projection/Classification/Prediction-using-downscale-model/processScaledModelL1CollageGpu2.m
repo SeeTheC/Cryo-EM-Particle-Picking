@@ -7,6 +7,8 @@ function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelTyp
     %% Divinding collages Parts 
     % Divinding collages Parts into different parts. Because RAM & GPU
     % memory will not sufficient to process the full collage at a time.    
+    fprintf('**MG Size:%dx%d\n',size(collage,1),size(collage,2));
+    fprintf('**patchDim:%dx%d\n',patchDim(1),patchDim(2));
     noOfParts=10;    
     partImgHeight= floor(H/noOfParts);     
     collageCell=cell(noOfParts,1);    
@@ -19,7 +21,7 @@ function [ outCell ] = processScaledModelL1CollageGpu2(collage,patchDim,modelTyp
     for i=1:noOfParts
         offset=(i-1)*partImgHeight;
         x1=offset-floor(halfPatchH)+1;
-        x2=offset+partImgHeight-1+floor(halfPatchH);
+        x2=offset+partImgHeight+floor(halfPatchH)-1;        
         if x1 < 1
             x1=1;
         end        
@@ -38,6 +40,7 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
     patchH=patchDim(1);patchW=patchDim(2);        
     noOfParts=size(collageCell,1);
     outCell=cell(noOfParts,1);
+    fprintf('*modelpath:%s\n',modelpath);
     %% SVM    
     if modelType==ModelType.CompactSVM
         fprintf('Loading PCA coefficent....');
@@ -82,27 +85,26 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
         end
         fprintf('Done \n');    
     end
-    %% Per Patch methods
+    
+    %% Per Patch methods        
+     %% Per Patch methods
     function [ feature ] = perPatchMethod(cellCol)   
-         vector=cellCol{1}; 
-         % Extacting Feature
-        if modelType==ModelType.CompactSVM
-            feature=bsxfun(@minus,vector,svm_pcamu)*svm_pcaCoeff;
-        elseif modelType==ModelType.RandomForest
-            feature=bsxfun(@minus,vector,rf_pcamu)*rf_pcaCoeff;
-        elseif modelType==ModelType.DecisionTree
-            feature=bsxfun(@minus,vector,dt_pcamu)*dt_pcaCoeff;
-        end
+         vector=cellCol{1};
+         if modelType==ModelType.CompactSVM
+             feature=bsxfun(@minus,vector,svm_pcamu)*svm_pcaCoeff;
+         elseif modelType==ModelType.RandomForest
+             feature=bsxfun(@minus,vector,rf_pcamu)*rf_pcaCoeff;
+         elseif modelType==ModelType.DecisionTree
+             feature=bsxfun(@minus,vector,dt_pcamu)*dt_pcaCoeff;
+         end
          clear vector;
          feature=gather(feature);
-         %[~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
-         %num=positiveScore;     
     end
     
     %% Process on each part of collage
     for section=1:noOfParts
         fprintf('............[%d/%d].........\n',section,noOfParts);
-        [H,W]=size(collageCell{section});      
+        [H,W]=size(collageCell{section});   
         patchRegion=[H-patchH+1,W-patchW+1];     
         fprintf('\n patchRegion:%d H:%d\n',patchRegion(1),H); 
         %% Creating Cell Array array
@@ -112,23 +114,26 @@ function [outCell]=predictUsingGPU(collageCell,patchDim,modelType,dirPath,modelp
         fprintf('Dim of colmat:%dx%d',size(colmat,1),size(colmat,2));
         dim=ones(1,size(colmat,2));
         cellColl = mat2cell(colmat',dim);
-        clear colmat;
+        clear colmat;        
         fprintf('Done...\n');
         toc
         %% Processing
         tic
-        fprintf('Processing...');
+        fprintf('Processing ..\n');        
         b=arrayfun(@perPatchMethod,cellColl,'UniformOutput',false);
         fprintf('Done...\n');
         toc
-        fprintf('Finding Prediction...');
+        fprintf('Clearing Data..\n');
         tic
         n=size(b,1);
-        output=zeros(size(cellColl,2),1);  
-        clear cellColl;   
+        output=zeros(size(cellColl,2),1);         
+        %cellColl={};
+        clear cellColl;
+        fprintf('Finding Prediction...');
         parfor i=1:n    
             feature=b{i};
             [~,positiveScore] = perdictLabel(modelType,trainedModel,feature);
+            %positiveScore=0.4;
             output(i)=positiveScore; 
         end
         toc

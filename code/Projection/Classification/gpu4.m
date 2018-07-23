@@ -1,7 +1,7 @@
 function [ output ] = gpu4()
 %% INIT
-H=10; W=10;
-patchDim=[3,3];
+H=1000; W=100;
+patchDim=[100,100];
 rng(1);
 mat=reshape([1:H*W],H,W)';
 index=[1:100];
@@ -20,20 +20,19 @@ end
 %%
 tic
 fprintf('Init GPU array...');
-collage=mat; index=index;
-%collage=mat; index=gpuArray(index);
+%collage=mat; index=index;
+collage=gpuArray(mat); index=gpuArray(index);
 
 colmat=im2col(collage,patchDim);
 dim=ones(1,size(colmat,2));
 cellColl = mat2cell(colmat',dim);
-
 fprintf('Done...\n');
 toc
 
 %%
 tic
+fprintf('Size of cellCol: %dx%d\n',size(cellColl,1),size(cellColl,2));
 fprintf('Processing...');
-
 b=arrayfun(@method1,cellColl);
 output=reshape(b,H-patchH+1,W-patchW+1)';
 

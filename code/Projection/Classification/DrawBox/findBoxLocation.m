@@ -30,9 +30,23 @@ function [X,Y] = findBoxLocation(scoreCollage,boxSize,probThershold,supressBoxSi
                     Y(particleCount)=locY;
                     particleCount=particleCount+1;
                     % Supress the values less than equal to max value
-                    scoreCollage(x1:x2,y1:y2)=0;
+                    [x1,x2,y1,y2] = getPatchCoordinat(locX,locY,supressBoxSize);
+                    if(x1<1)
+                        x1=1;
+                    end
+                    if(y1<1)
+                        y1=1;
+                    end
+                    if(x2>H)
+                        x2=H;
+                    end
+                    if(y2>W)
+                        y2=W;
+                    end
+                    fprintf('->x1:%d x2:%d y1:%d y2:%d\n',x1,x2,y1,y2);                                    
+                    scoreCollage(x1:x2,y1:y2)=0;                    
                 else
-                    fprinf('ERROR: Particle count is greater than Max value...\n');
+                    fprintf('ERROR: Particle count is greater than Max value...\n');
                     return;
                 end                
             end

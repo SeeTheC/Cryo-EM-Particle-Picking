@@ -13,7 +13,8 @@ function [ status ] = genSVMModelv2_0(server,noOfScales)
     end
     %------------------------------[Real Dataset: server:2]------------------------------------
     basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
-    basepath=strcat(basepath,'/model_1-2-4-8_12000');    
+    %basepath=strcat(basepath,'/model_1-2-4-8_18000');
+    basepath=strcat(basepath,'/model_4-8-12_18000');  
     %------------------------------[End. Real Dataset: server:2]------------------------------------        
     
     %------------------------------[Simulated]------------------------------------
@@ -37,7 +38,7 @@ function [ status ] = genSVMModelv2_0(server,noOfScales)
         
         
      %% Generating SVM Model
-    for i=4:noOfScales 
+    for i=1:noOfScales 
            fprintf('.............Generating SVM Model:%d..............\n',i);
            generate(i,basepath);
     end
@@ -49,7 +50,7 @@ function generate(modelNumber,basepath)
     datapath= strcat(basepath,'/pca_data');
     trainFile= strcat(datapath,'/train','/model-',num2str(modelNumber),'/complete_data_coeff.txt');
     testFile= strcat(datapath,'/test','/model-',num2str(modelNumber),'/complete_data_coeff.txt');
-    savepath = strcat(basepath,'/svm/','/model-',num2str(modelNumber));
+    savepath = strcat(basepath,'/svm-linear/','/model-',num2str(modelNumber));
     mkdir(savepath);
     %trainFile= strcat(datapath,'/train_set1.txt');
     %testFile= strcat(datapath,'/test_set1.txt');
@@ -98,7 +99,8 @@ function generate(modelNumber,basepath)
                         
     time=toc
     fprintf(fid,' Time required for training (sec): %f\n',time);
-    
+    svmModel
+    pause(5);
     %%              
     % Extract trained, compact classifier
     %compactSVMModel = compact(svmModel);

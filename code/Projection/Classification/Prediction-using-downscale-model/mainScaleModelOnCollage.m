@@ -10,9 +10,12 @@
 % RealDataset-gpu: 
 % mainScaleModelOnCollage(2,[216,216],[1,2,4,8],ModelType.CompactSVM,false,true)
 % mainScaleModelOnCollage(2,[216,216],[1,2,4,8],ModelType.RandomForest,false,true)
-function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isThreaded,gpu)
+%function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isThreaded,gpu)
+
+function [ status ] =  mainScaleModelOnCollage(config)  
     addpath(genpath('../../MapFileReader/'));
     status='failed';
+    server=config.server;
     %% Init    
     if server == 1
         basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data';
@@ -20,22 +23,45 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isT
         basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset';                           
     else
         basepath='/media/khursheed/4E20CD3920CD2933/MTP/'; 
-    end    
+    end
+    fprintf('----------------[Config]-------------------\n')
+        imgdim=config.imgdim;
+        scale=config.scale;
+        modelType=config.modelType;
+        isThreaded=config.isThreaded;
+        gpu=config.gpu;
+
+        collageNum=config.collageNum; 
+        model=config.model;
+        savepathPrefix=config.savepathPrefix;
+        maxCollageSize=config.maxCollageSize;    
+        minProbabiltyScore=config.minProbabiltyScore ;       
+        collageDir=config.collageDir;   
+        basepath=strcat(basepath,'/',config.dataset);                    
+   
+        fprintf('Config: IsThread: %d\n',isThreaded);
+        fprintf('Config: Gpu:%d \n',gpu); 
+   
+      fprintf('-----------------------------------\n')
+        
+    
+    %{
     fprintf('----------------[Config]-------------------\n')
     fprintf('Config: IsThread: %d\n',isThreaded);
-    fprintf('Config: Gpu:%d \n',gpu);
+    fprintf('Config: Gpu:%d \n',gpu);    
     %collageNum=1;
     %collageNum='14sep05c_00024sq_00003hl_00002es_c';    
-    collageNum='14sep05c_c_00007gr_00021sq_00017hl_00002es_c';        
+    collageNum='14sep05c_c_00007gr_00021sq_00017hl_00002es_c'; 
+    %collageNum='14sep05c_c_00007gr_00021sq_00016hl_00003es_c';     
     model='/model_1-2-4-8_18000';
     savepathPrefix='tr_18000';
     maxCollageSize=[5000,5000];    
-    minProbabiltyScore=0.2;    
-    %------------------------------[Real Dataset: server:2]------------------------------------
+    minProbabiltyScore=0.1;    
+    %-----------------------------[Real Dataset: server:2]------------------------------------
     collageDir='collage';   
     basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]                       
     %------------------------------[End. Real Dataset: server:2]------------------------------------        
-    
+    %}
     
     %------------------------------[Simulated]------------------------------------
     
@@ -50,26 +76,32 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isT
     
     %------------------------------[End-Simulated]--------------------------------
     
-    savepathPrefix=strcat(savepathPrefix,'_maxHW',num2str(maxCollageSize(1)),'x',num2str(maxCollageSize(2)));    
+    if(size(maxCollageSize,1)~=0)%full micrograph
+       savepathPrefix=strcat(savepathPrefix,'_maxHW',num2str(maxCollageSize(1)),'x',num2str(maxCollageSize(2)));    
+    end
     
     testPath=strcat(basepath,'/test');
     if server==2
-        testCollagePath= strcat(testPath,"/",collageDir,'/raw_img/',collageNum,'.mrc');  
-        [collage,~,~,~,~]=ReadMRC(testCollagePath);        
-        collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));        
+        testCollagePath= strcat(testPath,'/',collageDir,'/raw_img/',collageNum,'.mrc');  
+        [collage,~,~,~,~]=ReadMRC(testCollagePath);     
+        if(size(maxCollageSize,1)~=0)       
+            collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));  
+        end
     else
         testCollagePath= strcat(testPath,collageDir,'/raw_img/',collageNum,'.mat');
         struct=load(testCollagePath);
         collage=struct.img;
-        collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));
+        if(size(maxCollageSize,1)~=0)               
+            collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));
+        end
     end   
     
     
     mt='';
     if modelType==ModelType.CompactSVM   
-		mt='svm-poly-3'; 
+		mt='svm-linear-40TC'; 
     elseif modelType==ModelType.RandomForest
-		mt='ramdomForest';
+		mt='ramdomForest-50trees-40TC';
     elseif modelType==ModelType.DecisionTree
 		mt='decisionTree';
     end
@@ -83,7 +115,8 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isT
     %% Perdict        
     basepath=strcat(basepath,model);savepath=strcat(savepath,model);
     noOfScale=numel(scale);
-    for i=noOfScale:-1:1
+    
+    for i=noOfScale:-1:noOfScale        
         fprintf('----------------[Processing Model-%d (decending order)]-------------------\n',i);
         modelnumber=i;downscale=scale(i);  
         if i==noOfScale
@@ -96,7 +129,7 @@ function [ status ] =  mainScaleModelOnCollage(server,imgdim,scale,modelType,isT
                 fprintf('Done.\n');
             else
                 % File does not exist.
-                fprintf('-->Not-Found :');
+                fprintf('-->Not-Found :\n');
                 [prevStageImg]=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumber,downscale,basepath,savepath,modelType,isThreaded,gpu);    
             end
             [location,particleCount] = findProbableLoc(prevStageImg,minProbabiltyScore); 
@@ -134,10 +167,10 @@ function [outImg,outLoc]=predictOnSpecLocCollage(server,collage,collageNum,imgdi
     tic
     model=strcat('/model-',num2str(modelnumber));
     if modelType==ModelType.CompactSVM
-        svmModel=strcat('/svm',model);  
+        svmModel=strcat('/svm-linear',model);  
         modelpath=  strcat(basepath,svmModel); 
     elseif modelType==ModelType.RandomForest
-        rfModel=strcat('/rf',model);
+        rfModel=strcat('/rf-with-50trees',model);
         modelpath=  strcat(basepath,rfModel);
     elseif modelType==ModelType.DecisionTree
         dtModel=strcat('/dt',model);
@@ -146,11 +179,11 @@ function [outImg,outLoc]=predictOnSpecLocCollage(server,collage,collageNum,imgdi
     workingDirPath=  strcat(basepath,'/pca_data/train/',model);
     %modelpath=  strcat(basepath,svmModel);   
     if (~isThreaded && ~gpu)
-        fprintf('Processing without thread...');
+        fprintf('Processing without thread...\n');
         [outImg,outLoc] = predictScaledModelLnCollage(collage,[patchH,patchW],location,modelType,workingDirPath,modelpath);
 
     elseif false && isThreaded && ~gpu
-        fprintf('Processing with CPU thread...');
+        fprintf('Processing with CPU thread...\n');
         % TO BE WRIITEN (IF REQUIRED)
     elseif gpu
        fprintf('Processing with Gpu.\n');  
@@ -178,7 +211,6 @@ function saveCollageImg(outImg,savepath,collageNum)
     save(strcat(savepath,'/',collageNum,'.mat'),'outImg');
 end
 
-
 %% PredictOnFullCollage
 
 % It will find probabilty score at every pixel of collage using the
@@ -200,10 +232,10 @@ function outImg=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumbe
     
     model=strcat('/model-',num2str(modelnumber));
     if modelType==ModelType.CompactSVM
-        svmModel=strcat('/svm',model);  
+        svmModel=strcat('/svm-linear',model);  
         modelpath=strcat(basepath,svmModel); 
     elseif modelType==ModelType.RandomForest
-        rfModel=strcat('/rf',model);
+        rfModel=strcat('/rf-with-50trees',model);
         modelpath=  strcat(basepath,rfModel); 
     elseif modelType==ModelType.DecisionTree
         dtModel=strcat('/dt',model);
@@ -211,11 +243,11 @@ function outImg=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumbe
     end
     workingDirPath=  strcat(basepath,'/pca_data/train',model);
     if ~isThreaded && ~gpu
-        fprintf('Processing without thread...');
+        fprintf('Processing without thread...\n');
         [outImg] = predictScaledModelL1Collage(collage,[patchH,patchW],modelType,workingDirPath,modelpath);
         
     elseif isThreaded && ~gpu
-        fprintf('Processing with CPU thread...');
+        fprintf('Processing with CPU thread...\n');
         thread=10;
         delete(gcp('nocreate'));
         parpool(thread)
@@ -223,7 +255,7 @@ function outImg=predictOnFullCollage(server,collage,collageNum,imgdim,modelnumbe
         [outImg]=mergeParallelCollage(outCell,[patchH,patchW],collageSize);    
         
     elseif gpu
-        fprintf('Processing with Gpu.');
+        fprintf('Processing with Gpu...\n');
         [outCell] = processScaledModelL1CollageGpu2(collage,[patchH,patchW],modelType,workingDirPath,modelpath);        
         [outImg]=mergeParallelCollage(outCell,[patchH,patchW],collageSize);    
     end
@@ -255,7 +287,7 @@ function [mergedImg]=mergeParallelCollage(imgCell,cellDim,orgCollageDim)
     for i=1:thread
         offset=(i-1)*threadImgHeight;
         x1=offset-floor(halfPatchH)+1;
-        x2=offset+threadImgHeight-1+floor(halfPatchH);
+        x2=offset+threadImgHeight+floor(halfPatchH)-1;
         if x1 <1
             x1=1;
         end

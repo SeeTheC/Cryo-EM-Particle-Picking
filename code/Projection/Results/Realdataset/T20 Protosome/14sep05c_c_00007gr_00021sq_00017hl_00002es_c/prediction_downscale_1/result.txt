@@ -1,0 +1,24 @@
+%---------------------[Config]------------------------
+
+% Mg Setting: 2 T20 Prototsome
+config.probThershold=0.65;
+config.modelType=ModelType.RandomForest;      
+config.mgDir='14sep05c_c_00007gr_00021sq_00017hl_00002es_c_tr_18000_maxHW5000x5000';     
+config.model='model_1-2-4-8_18000';  
+config.scaleModel=1;% which scale model to test
+config.downscale=1; % what is the downscale value fo micrograph;
+config.collageNum='14sep05c_c_00007gr_00021sq_00017hl_00002es_c';             
+config.coordMetadataPath='10025/run1_shiny_mp007_data_dotstar.txt.csv';
+
+
+----------------------------------------------------------------
+****Result:
+True Loc Count:	122 
+Total Pred. Count:	343 
+Correctly Pred. Count:	101 
+Extra Predicted Count:	242 
+Avg. Translation Error:	27 pixel
+
+Accuracy:	0.827869
+Precision:	0.417355
+----------------------------------------------------------------

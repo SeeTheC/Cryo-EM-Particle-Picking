@@ -14,8 +14,8 @@ noOfScales=4;
 % maxNumberSample used when training set has large number of data point and
 % we need only few i.t traing set has 50K points and we want only 2000
 % points
-maxNumberSample=12000;
-status= genFeaturePCAEncoding(server,imgdim,noOfScales,maxNumberSample);
+maxNumberSample=18000;
+status= genFeaturePCAEncoding(server,imgdim,[4,8,12],maxNumberSample);
 fprintf(status,'\n');
 %%
 
