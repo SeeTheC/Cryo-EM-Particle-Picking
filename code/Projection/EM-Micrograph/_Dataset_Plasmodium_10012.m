@@ -16,6 +16,7 @@ elseif server==2
 end
 
 mrcBPath=strcat(basepath,'/data');
+markingPath=strcat(basepath,'/box');
 savePath=strcat(basepath);
 
 %% Process
@@ -42,13 +43,13 @@ fprintf('Done\n');
 %mg=load(l);
 %mg=mg.micrograph;
 %% TESTING MARKING
-markingFile=strcat(mrcBPath,'/box','BGal_000000.box');
+markingFile=strcat(markingPath,'/','BGal_000000.box');
 tbl=getAllCoordinate(markingFile);
 %% TEMP tbl
 tbl={[4441,546 ];[3840,874 ];[1610,1229];[4099,1238];[3542,1255];[6755,1448];[3435,1792];[3641,1797];[6827,2629];[2129,2776];[5701,2860];[6684,3298];[3361,3320];[4047,3422]}
 tbl=cell2table(tbl);
 %%
-downscale=12;
+downscale=8;
 img=imresize(double(mg),1/downscale);
 img=img/max(img(:));
 lineWidth=1;predictColor='red';
@@ -75,7 +76,7 @@ imshow(img);
 
 %%
 % Reading Files Name
-filename=getDirFilesName(mrcBPath,'star');
+filename=getDirFilesName(markingPath,'box');
 noOfStar=numel(filename);
 fprintf('** Number of Particle Files to process:%d\n',noOfStar);
 
@@ -83,10 +84,10 @@ finalTable=cell2table(cell(0,3));
 finalTable.Properties.VariableNames={'name','x','y'};
 for i=1:noOfStar
     file=filename{i};
-    temp=split(file,'_autopick.star');
+    temp=split(file,'.box');
     name=strcat(temp{1},'.mrc');    
     fprintf('--Processing File-%d : %s\n',i,name);
-    markingFile=strcat(mrcBPath,'/',file);
+    markingFile=strcat(markingPath,'/',file);
     tbl=getAllCoordinate(markingFile);
     noOfParticles=height(tbl);
     fprintf('No of Paticles:%d\n',noOfParticles);

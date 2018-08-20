@@ -6,7 +6,7 @@ BEGIN {FS=" ";i=0;l=0;print("x,y")}
 	{
 			hw=$3/2;
 			hh=$4/2; 
-			printf("%d\t%d\n",$1+hw,$2+hh);
+			printf("%d,%d\n",$1+hw,$2+hh);
 			l++;							
 	}
 }
