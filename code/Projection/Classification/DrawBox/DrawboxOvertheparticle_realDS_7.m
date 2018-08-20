@@ -39,7 +39,7 @@ end
     collageNumDir='14sep05c_c_00007gr_00021sq_00017hl_00002es_c_tr_18000_maxHW5000x5000';
     
     basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [216,216] 
-    coordMetadataPath=strcat(basepath,'/10025/','run1_shiny_mp007_data_dotstar.txt.csv');    
+    coordMetadataPath=strcat(basepath,'/10025/','run1_shiny_mp007_data_dotstar.txt.star');    
 %------------------------------[END Real Dataset: server:2]------------------------------------
    
 mt='';

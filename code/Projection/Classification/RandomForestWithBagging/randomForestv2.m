@@ -1,6 +1,6 @@
 % Used for generating multi scale model
-% Call: randomForestv2(1,3)
-function [ status ] = randomForestv2(server,noOfScales)
+% Call: randomForestv2(1,3,4)
+function [ status ] = randomForestv2(server,noOfScales,noOfThreads)
     %% INIT        
     status='fail';                
     if server==1
@@ -11,12 +11,12 @@ function [ status ] = randomForestv2(server,noOfScales)
        basepath='/media/khursheed/4E20CD3920CD2933/MTP/';   
     end
    %------------------------------[Real Dataset: server:2]------------------------------------
-    basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
+    basepath=strcat(basepath,'/_data-proj-10028','v.10'); % img dimension: [333,333]        
     %basepath=strcat(basepath,'/model_1-2-4-8');
     %basepath=strcat(basepath,'/model_1-2-4-8_18000');    
     basepath=strcat(basepath,'/model_4-8-12_18000');    
     
-    noOfThreads=4;
+    %noOfThreads=10;
     %------------------------------[End. Real Dataset: server:2]------------------------------------        
     
     %------------------------------[Simulated]------------------------------------

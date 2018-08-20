@@ -82,13 +82,13 @@ function [ status ] =  mainScaleModelOnCollage(config)
     
     testPath=strcat(basepath,'/test');
     if server==2
-        testCollagePath= strcat(testPath,'/',collageDir,'/raw_img/',collageNum,'.mrc');  
+        testCollagePath= strcat(testPath,'/',collageDir,'/', config.collageSubDir,'/',collageNum,'.mrc');  
         [collage,~,~,~,~]=ReadMRC(testCollagePath);     
         if(size(maxCollageSize,1)~=0)       
             collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));  
         end
     else
-        testCollagePath= strcat(testPath,collageDir,'/raw_img/',collageNum,'.mat');
+        testCollagePath= strcat(testPath,collageDir,'/', config.collageSubDir,'/',collageNum,'.mat');
         struct=load(testCollagePath);
         collage=struct.img;
         if(size(maxCollageSize,1)~=0)               

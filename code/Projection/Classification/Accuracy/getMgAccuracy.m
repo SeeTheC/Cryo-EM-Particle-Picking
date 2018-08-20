@@ -50,7 +50,7 @@ function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable] 
     cY=cY*config.downscale;
     predictedLoc=[cX,cY];
     %% Fetching TRUE cordinates
-    [trueKnownCoord,keyword]=getRelionCoordinate(collageNum,coordMetadataPath);
+    [trueKnownCoord,keyword]=getRelionCoordinate(config.coordMetadataSearchStr,coordMetadataPath);
     noOfTrueLoc=size(trueKnownCoord,1);
     %% Finding NEAREST NEIGBOUR MAPPING OF PREDICTED AND TRUE COORDINATE
     result=[];
@@ -94,7 +94,7 @@ function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable] 
     fid = fopen(strcat(testCollageRawPath,'/result.txt'), 'w+');    
     accuracy=correctlyPredCount/trueCount;
     extraPred=totalPredLoc-correctlyPredCount;
-    precision=correctlyPredCount/extraPred;
+    precision=correctlyPredCount/totalPredLoc;
     mapping=result;
     distList=mapping(mapping(:,5)<Inf,5);
     transError=distList;
@@ -114,18 +114,18 @@ function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable] 
     resultTable=cell2table(resultCell);
     resultTable.Properties.VariableNames = {'name','trueCount' 'totalPredLoc' 'correctlyPredCount' 'extraPred','minTranslationError','maxTranslationError','avgTranslationError','medianTransLationError','accuracy','precision'};
     fprintf('----------------------------------------------------------------\n');   
-    
+    return 
     %% Marking Center Config
     maxCollageSize=config.maxCollageSize;
     if config.server==2
-        originalCollageName= strcat(testPath,'/raw_img/',collageNum,'.mrc');  
+        originalCollageName= strcat(testPath,'/',config.collageSubDir,'/',collageNum,'.mrc');  
         [collage,~,~,~,~]=ReadMRC(originalCollageName);
         if(size(maxCollageSize,1)==0)
             maxCollageSize=size(collage);
         end
         collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));    
     else
-        originalCollageName=strcat(testPath,'/raw_img/',collage,'.mat');
+        originalCollageName=strcat(testPath,'/',config.collageSubDir,'/',collageNum,'.mat');
         struct=load(originalCollageName);
         collage=struct.img;
         if(size(maxCollageSize,1)==0)
@@ -138,7 +138,8 @@ function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable] 
     %    collage=imresize(collage,1/config.downscale);        
     %end
     drawingConfig.originalMg=collage;
-    drawingConfig.visualDownsample=config.downscale;  
+    %drawingConfig.visualDownsample=config.downscale;  
+    drawingConfig.visualDownsample=config.visualDownsample;
     %drawingConfig.downscaleModel=config.downscale;
     drawingConfig.predictedLoc=predictedLoc;
     drawingConfig.trueKnownLoc=trueKnownCoord;

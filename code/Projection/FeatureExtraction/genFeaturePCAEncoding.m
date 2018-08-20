@@ -17,7 +17,7 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,dScale,maxNumberSample
         noOfScales=numel(dScale);
         % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
         %------------------------------[Real Dataset: server:2]------------------------------------
-        basepath=strcat(basepath,'/_data-proj-10025','v.10'); % img dimension: [333,333]        
+        basepath=strcat(basepath,'/_data-proj-10028','v.10'); % img dimension: [333,333]        
         
         %------------------------------[End. Real Dataset: server:2]------------------------------------        
         %------------------------------[Simulated]------------------------------------
@@ -74,6 +74,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     
     %% 1. Fetch Train Data Images
     fprintf('-----------------[Reading +ve Train]---------------------------\n');    
+    maxNumberSample=6000;
     [dataMtx,totalRecord]=getImgDataAsDataMtx(trainDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);
     
@@ -115,6 +116,7 @@ function generate(server,imgdim,downscale,modelNumber,basepath,savepath,maxNumbe
     fprintf('Done.\n');
     %% 1.3 Fetch -ve Data Images
     fprintf('------------------[Reading -ve Train--------------------------------\n');    
+    maxNumberSample=12000;
     [dataMtx,totalRecord]=getImgDataAsDataMtx(trainNegDataPath,[imgHeight,imgWidth],downscale,maxNumberSample);
     fprintf('Done. Read %d images\n',totalRecord);    
     % Finding -ve Data Eigen Coeffient 

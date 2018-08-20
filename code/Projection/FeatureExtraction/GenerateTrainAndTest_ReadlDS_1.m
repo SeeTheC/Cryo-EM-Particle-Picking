@@ -6,24 +6,24 @@ server=1;
 fprintf('Server:%d\n',server);
 timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
 if server
-    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset/T20_Proteasome/ftp.ebi.ac.uk/pub/databases/empiar/archive';
+    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset';
 else
     basepath='/media/khursheed/4E20CD3920CD2933/MTP/RealDataset'; 
     basepath=strcat(basepath,'/Micrograph');
 end
 %----------------------[Config]------------------------------------
-sample='10025';
+sample='10028';
 projection='projection_1';
 version='v.10';
 % Test Data Percentage
 testPercent=25; % i.e 25 %
 %------------------------------------------------------------------
-basepath=strcat(basepath,'/',sample,'/',projection);
+datasetPath=strcat(basepath,'/',sample,'/',projection);
 
-dataPath{1,1}=strcat(basepath,'/positive/img');
-dataPath{1,2}=strcat(basepath,'/positive/raw_img');
-dataPath{2,1}=strcat(basepath,'/negative/img');
-dataPath{2,2}=strcat(basepath,'/negative/raw_img');
+dataPath{1,1}=strcat(datasetPath,'/positive/img');
+dataPath{1,2}=strcat(datasetPath,'/positive/raw_img');
+dataPath{2,1}=strcat(datasetPath,'/negative/img');
+dataPath{2,2}=strcat(datasetPath,'/negative/raw_img');
 
 
 % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
@@ -33,6 +33,7 @@ saveTestDP = strcat(saveBP,'/test');
 
 mkdir(saveTrainDP);
 mkdir(saveTestDP);
+
 %% Random Fetch Train and Test data
 addpath('../DataCorrection/');
 for i=1:2
@@ -50,8 +51,11 @@ for i=1:2
     noOfImg=size(fileList,2);
     randomOrder=randperm(noOfImg,noOfImg);
     noOFTestImg=ceil(testPercent*noOfImg/100);
+    fprintf('noOfImg:%d noOfTrain:%d noOfTest:%d\n',noOfImg,noOfImg-noOFTestImg,noOFTestImg);
+    fprintf('Staring Train set..\n');
     % train
     for j=1:noOfImg-noOFTestImg-1
+        fprintf('Train img %d/%d\n',j,noOfImg-noOFTestImg-1);        
         filename=fileList{randomOrder(j)};
         splitResult=strsplit(filename,'.');
         imgNum=splitResult{1};           
@@ -67,9 +71,10 @@ for i=1:2
         toPath=strcat(saveTrainDPRaw,'/',newName,'.mat');
         copyfile(fromPath,toPath);
     end
+    fprintf('Staring Test set..\n');
     % test
     for j=noOfImg-noOFTestImg:noOfImg
-        
+        fprintf('Test img %d/%d\n',j,noOfImg);
         filename=fileList{randomOrder(j)};
         splitResult=strsplit(filename,'.');
         imgNum=splitResult{1};           

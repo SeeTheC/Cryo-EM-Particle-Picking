@@ -20,12 +20,14 @@ sample='10025';
 micrographDir='14sep05c_averaged_196';
 coordinateMetadata='run1_shiny_mp007_data_dotstar.txt.csv';
 patchSize=([18,18]).*12;
-testPercent=20; % in percentage
+testPercent=30; % in percentage
 %-------------------------------------------------------------------
 basepath=strcat(basepath,'/',sample);
 mgPath=strcat(basepath,'/data/',micrographDir);
 coordMetadataPath=strcat(basepath,'/',coordinateMetadata);
 fprintf('Init Done\n');
+
+
 %% Process
-[status] = generatePosAndNegDS_DL(mgPath,patchSize,coordMetadataPath,testPercent,basepath);
+[status,finalTrainTbl,finalTestTbl] = generatePosAndNegDS_DL(mgPath,patchSize,coordMetadataPath,testPercent,basepath);
 fprintf("%s\n",status);
