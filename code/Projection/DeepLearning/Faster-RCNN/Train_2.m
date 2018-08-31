@@ -155,7 +155,7 @@ mgFile=strcat(basepath,'/10025/data/14sep05c_averaged_196/',mgName);
 mg=mg-min(mg(:));
 mg=mg./max(mg(:));
 %%
-Iimg = imread(trainDataset.filename{100});
+Iimg = imread(trainDataset.filename{12});
 %Iimg=mg;
 I=imresize(Iimg,1/2.5);
 %hI=histeq(I);

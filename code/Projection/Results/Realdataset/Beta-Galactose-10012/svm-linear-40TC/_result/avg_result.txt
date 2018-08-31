@@ -1,0 +1,12 @@
+** Result  
+Total Micrgraph: 40
+Each Micrograph size: 7420x7676 
+Total Predicted Particles: 1558
+
+Accuracy/Recall: 94.391773
+Precision: 9.481120
+
+Avg Translation Error: 24 pixel
+Med Translation Error: 20 pixel
+Min Translation Error: 0 pixel
+Max Translation Error: 105 pixel
