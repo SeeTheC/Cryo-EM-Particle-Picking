@@ -7,6 +7,7 @@ function [avgPrecision,result,tblPrecsionRecall] = predictOnTestDataset(detector
     negfid = fopen(negImgInfo, 'w+');   
     wrongTesImg=[];
     for i = 1:height(testData)      
+        fprintf('Test Image:%d\n',i);
         filename=testData.filename{i};
         %Temp: filename=strcat(filename,'.jpg');
         [status,bboxes]=isTestImgValidGroundTruth(testData.box{i});
@@ -34,7 +35,7 @@ function [avgPrecision,result,tblPrecsionRecall] = predictOnTestDataset(detector
         resultsStruct(i).Scores = scores;
         resultsStruct(i).Labels = labels;        
         % save image after creating bounding box
-        saveImage(I,bboxes,scores,filename,savedTestImgPath)
+        % saveImage(I,bboxes,scores,filename,savedTestImgPath)
         if size(bboxes,1) ==0
             sfn=split(filename,'/');
             fprintf('** NO Particle FOUND:%s/%s\n',sfn{end-1},sfn{end});
