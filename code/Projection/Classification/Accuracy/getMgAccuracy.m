@@ -114,7 +114,7 @@ function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable] 
     resultTable=cell2table(resultCell);
     resultTable.Properties.VariableNames = {'name','trueCount' 'totalPredLoc' 'correctlyPredCount' 'extraPred','minTranslationError','maxTranslationError','avgTranslationError','medianTransLationError','accuracy','precision'};
     fprintf('----------------------------------------------------------------\n');   
-    return 
+    %return 
     %% Marking Center Config
     maxCollageSize=config.maxCollageSize;
     if config.server==2

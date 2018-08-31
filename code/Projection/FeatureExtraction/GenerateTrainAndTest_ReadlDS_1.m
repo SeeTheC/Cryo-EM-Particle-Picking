@@ -12,7 +12,7 @@ else
     basepath=strcat(basepath,'/Micrograph');
 end
 %----------------------[Config]------------------------------------
-sample='10028';
+sample='10012';
 projection='projection_1';
 version='v.10';
 % Test Data Percentage

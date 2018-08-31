@@ -24,7 +24,7 @@ function [predImg,predTrueImg] = markCenterParticle(drawingConfig)
     %% Mark center at Predicted location      
     fprintf("Marking center at Pred Loc...\n");
 
-    lineWidth=6;    markerSize=15;    predictColor='red';
+    lineWidth=2;    markerSize=3;    predictColor='red';
     sizeOfImg=size(img);
     for r= 1:noOfPredLoc
         cx=predictedLoc(r,1)/visualDownsample;cy=predictedLoc(r,2)/visualDownsample;
@@ -42,7 +42,7 @@ function [predImg,predTrueImg] = markCenterParticle(drawingConfig)
     %% % Drawing True Center
     fprintf('Marking True Center...\n');
     img1=img;
-    lineWidth=2;    markerSize=18;    predictColor='green'; 
+    lineWidth=2;    markerSize=2;    predictColor='green'; 
     sizeOfImg=size(img1);
     for idx=1:noOfTrueLoc
         row=trueKnownLoc(idx,:);

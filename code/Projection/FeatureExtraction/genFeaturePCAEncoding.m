@@ -17,7 +17,7 @@ function [ status ] = genFeaturePCAEncoding(server,imgdim,dScale,maxNumberSample
         noOfScales=numel(dScale);
         % SaveDir: NOTE. CHANEGE DIR Version EVERY TIME YOU GENERATE
         %------------------------------[Real Dataset: server:2]------------------------------------
-        basepath=strcat(basepath,'/_data-proj-10028','v.10'); % img dimension: [333,333]        
+        basepath=strcat(basepath,'/_data-proj-10012','v.10'); % img dimension: [333,333]        
         
         %------------------------------[End. Real Dataset: server:2]------------------------------------        
         %------------------------------[Simulated]------------------------------------

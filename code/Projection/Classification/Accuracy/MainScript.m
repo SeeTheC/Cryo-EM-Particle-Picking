@@ -25,7 +25,7 @@
     config=struct;
     config.server=server;
     config.collageDir='collage';   
-    config.dataset='_data-proj-10028v.10'; % img dimension: [216,216]     
+    config.dataset='_data-proj-10012v.10'; % img dimension: [216,216]     
     config.cellDim=[216,216];
     config.supressBoxSize=[216,216];        
     config.basepath=basepath;
@@ -65,16 +65,14 @@
         %}
         %----------------------------------------------------------------------
 
-        %%{  
+        %{  
         % Mg Setting: 80S_ribosome   
         config.probThershold=0.7;   
         %config.maxCollageSize=[5000,5000];
         config.maxCollageSize=[];    
         config.modelType=ModelType.RandomForest;      
-        %config.mgDir='14sep05c_c_00007gr_00021sq_00016hl_00003es_c_tr_18000_maxHW5000x5000';     
         config.mgDir='part1_561_postfix_tr_18000';    
         config.collageSubDir='Test_Micrograph';
-        %config.mgDir='14sep05c_c_00006gr_00030sq_00008hl_00002es_c_postfix_tr_18000';
         config.model='model_4-8-12_18000';          
         %config.model='model_1-2-4-8_18000';      
         config.scaleModel=3;% which scale model to test
@@ -85,11 +83,29 @@
         config.coordMetadataPath='10028/relion_particles.csv';    
         %}
         %----------------------------------------------------------------------
+		
+        %%{  
+        % Mg Setting: 10012   
+        config.probThershold=0.97;   
+        %config.maxCollageSize=[5000,5000];
+        config.maxCollageSize=[];    
+        config.modelType=ModelType.CompactSVM;      
+        config.mgDir='BGal_000470_postfix_tr_18000';    
+        config.collageSubDir='Test_Micrograph';
+        config.model='model_4-8-12_18000';          
+        config.scaleModel=3;% which scale model to test
+        config.downscale=12; % what is the downscale value fo micrograph;
+        config.visualDownsample=1;
+        config.collageNum='BGal_000470';        
+        config.coordMetadataSearchStr='BGal_000470.mrc';        
+        config.coordMetadataPath='10012/relion_particles.csv';    
+        %}
+        %----------------------------------------------------------------------
 
 
         % Call
         [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable]=getMgAccuracy(config);
-        end
+    end
 %% Multiple Micrograph
 if(multipleMg)
     config.probThershold=0.7;   
@@ -98,9 +114,10 @@ if(multipleMg)
     config.model='model_4-8-12_18000';          
     config.scaleModel=3;% which scale model to test
     config.downscale=12; % what is the downscale value fo micrograph;
-    config.visualDownsample=1;
+    config.visualDownsample=12;
     %config.coordMetadataPath='10025/run1_shiny_mp007_data_dotstar.txt.csv';    
-    config.coordMetadataPath='10028/relion_particles.csv';  
+    %config.coordMetadataPath='10028/relion_particles.csv';  
+	config.coordMetadataPath='10012/relion_particles.csv';      
     config.collageSubDir='Test_Micrograph';
 
     mt='';

@@ -72,7 +72,7 @@ fullTrainDataset(1:2,:)
 fprintf('Done.\n');
 %% Visualizing Dataset 
 % Read one of the images.
-imgNo=12;
+imgNo=42;
 downscale=3;
 img = imread(fullTrainDataset.filename{imgNo});
 img1=imresize(img,1/downscale);
@@ -88,8 +88,7 @@ imshow(I,[]);
 %% Mark Center
 addpath(genpath('../Classification/DrawBox/'));
 centoroid=bbox+108;
-centoroid = centoroid(:,[2 1]);
-drawingConfig.originalMg=double(img);
+drawingConfig.originalMg=img;
 %drawingConfig.visualDownsample=config.downscale;  
 drawingConfig.visualDownsample=3;
 %drawingConfig.downscaleModel=config.downscale;
@@ -105,7 +104,7 @@ trainingData = fullTrainDataset(1:end,:);
 valData = trainDataset(4000+1:end,:);
 %% Creating Arch
 %[layers,options,minInputDim]=createRCNNArchAlexNet(2,savemodel);
-[layers,options,minInputDim]=createRCNNArch2(2,savemodel);
+[layers,options,minInputDim]=createRCNNArch3(2,savemodel);
 %[layers,options,minInputDim]=createRCNNArchVGG16(2,savemodel);
 
 if checkpointing

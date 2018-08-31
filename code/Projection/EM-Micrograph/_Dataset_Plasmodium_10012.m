@@ -6,7 +6,7 @@ addpath(genpath('../DataCorrection/'));
 addpath(genpath('script/'));
 
 %% INIT
-server=3;
+server=2;
 fprintf('Server:%d\n',server);
 timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
 if server==3
@@ -15,7 +15,7 @@ elseif server==2
     basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset/10012/data';
 end
 
-mrcBPath=strcat(basepath,'/data');
+mrcBPath=strcat(basepath,'/raw_img');
 markingPath=strcat(basepath,'/box');
 savePath=strcat(basepath);
 
@@ -27,7 +27,7 @@ noOfMg=numel(filename);
 fprintf('** Number of Micrograph to process:%d\n',noOfMg);
 
 %% Process each Micrograph
-for i=1:1%noOfMg
+for i=11:11%noOfMg
     fullfn=filename{i};
     fprintf('Processing Mg(%d/%d): %s\n',i,noOfMg,fullfn);
     fn=split(fullfn,'.');
@@ -43,7 +43,7 @@ fprintf('Done\n');
 %mg=load(l);
 %mg=mg.micrograph;
 %% TESTING MARKING
-markingFile=strcat(markingPath,'/','BGal_000000.box');
+markingFile=strcat(markingPath,'/','BGal_000010.box');
 tbl=getAllCoordinate(markingFile);
 %% TEMP tbl
 tbl={[4441,546 ];[3840,874 ];[1610,1229];[4099,1238];[3542,1255];[6755,1448];[3435,1792];[3641,1797];[6827,2629];[2129,2776];[5701,2860];[6684,3298];[3361,3320];[4047,3422]}
@@ -70,8 +70,28 @@ for r= 1:size(tbl,1)
 end
 imshow(img);
 fprintf('Done\n');
-%%
-imshow(img);
+
+%% Draw rectangle
+fprintf('Drawing rectangle...\n');
+downscale=12;
+img1=imresize(double(mg),1/downscale);
+img1=img1/max(img1(:));
+fh = figure;
+imshow(img1);
+hold on;
+boxSize=round([216,216]./downscale);
+for r= 1:10%noOfRect
+    row=tbl(r,:);
+    cx=round((row.x)./downscale);cy=round((row.y)./downscale);
+    [x1,x2,y1,y2] = getPatchCoordinat(cx,cy,boxSize);
+    fprintf('x1:%d x2:%d y1:%d y2:%d\n',x1,x2,y1,y2);
+    rectangle('Position',[y1,x1,boxSize(2),boxSize(1)],...
+          'EdgeColor', 'r',...
+          'LineWidth', 1,...
+          'LineStyle','-');
+    
+end
+
 %% Creating common partice marking for All micrograph
 
 %%

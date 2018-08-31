@@ -15,19 +15,19 @@ config.isThreaded=false;
 config.gpu=true;
 
 config.collageDir='collage';   
-config.dataset='_data-proj-10028v.10';
+config.dataset='_data-proj-10012v.10';
 
 %% Single Micrograph
 
 if(~multipleMg)
     config.scale=[4,8,12];
-    config.collageSubDir='raw_img';
-    config.collageNum='part1_001';        
+    config.collageSubDir='Test_Micrograph';
+    config.collageNum='BGal_000469';        
     %config.model='/model_1-2-4-8_18000';
     config.model='/model_4-8-12_18000';
     config.savepathPrefix='postfix_tr_18000';
     config.maxCollageSize=[];    
-    config.minProbabiltyScore=0.6;
+    config.minProbabiltyScore=0.9;
 
     status=mainScaleModelOnCollage(config);
     fprintf('**Completed with status:%s\n',status);
@@ -59,7 +59,7 @@ if(multipleMg)
     config.maxCollageSize=[];    
     config.minProbabiltyScore=0.6;
     
-    for i=50:noOfMg
+    for i=1:noOfMg
         mgName=filename{i};
         temp=strsplit(mgName,'.');
         mgName=temp{1};
