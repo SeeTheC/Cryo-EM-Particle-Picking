@@ -11,11 +11,11 @@ function [newtbl,csv] = readBboxCsv(filename)
         row=sortedTbl(i,:);
         name=row{1,1}{1};
         if(strcmp(prevfile,name))
-            bbox=[bbox;row{1,3},row{1,2},row{1,4},row{1,5}];   
+            bbox=[bbox;row{1,3},row{1,2},row{1,5},row{1,4}];   
             particleCell(idx,:)={char(name),{double(bbox)}};
         else
             idx=idx+1;
-            bbox=[row{1,3},row{1,2},row{1,4},row{1,5}];   
+            bbox=[row{1,3},row{1,2},row{1,5},row{1,4}];   
             particleCell(idx,:)={char(name),{double(bbox)}};
         end  
         prevfile=name;

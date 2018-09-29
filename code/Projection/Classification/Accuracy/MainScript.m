@@ -181,7 +181,7 @@ if(multipleMg)
     fprintf(fid,'Min Translation Error: %d pixel\n',round(min(allTransError)));
     fprintf(fid,'Max Translation Error: %d pixel\n',round(max(allTransError)));
     fclose(fid);
-    %% Histogram
+    % Histogram
     bEdge=[0:3:(216+2)/2];
     xticks(bEdge);
     histogram(allTransError,bEdge);

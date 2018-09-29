@@ -10,9 +10,9 @@ server=2;
 fprintf('Server:%d\n',server);
 timestamp=datestr(now,'dd-mm-yyyy HH:MM:SS');
 if server==3
-    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/mtp-data/RealDataset/10012/data';
+    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/mtp-data/RealDataset/10012';
 elseif server==2
-    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset/10012/data';
+    basepath='~/git/Cryp-EM/Cryo-EM-Particle-Picking/code/Projection/data/RealDataset/10012';
 end
 
 mrcBPath=strcat(basepath,'/raw_img');
@@ -27,7 +27,7 @@ noOfMg=numel(filename);
 fprintf('** Number of Micrograph to process:%d\n',noOfMg);
 
 %% Process each Micrograph
-for i=11:11%noOfMg
+for i=1:1%noOfMg
     fullfn=filename{i};
     fprintf('Processing Mg(%d/%d): %s\n',i,noOfMg,fullfn);
     fn=split(fullfn,'.');
