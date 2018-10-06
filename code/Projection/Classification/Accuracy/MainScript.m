@@ -25,7 +25,7 @@
     config=struct;
     config.server=server;
     config.collageDir='collage';   
-    config.dataset='_data-proj-10012v.10'; % img dimension: [216,216]     
+    config.dataset='_data-proj-10025v.10'; % img dimension: [216,216]     
     config.cellDim=[216,216];
     config.supressBoxSize=[216,216];        
     config.basepath=basepath;

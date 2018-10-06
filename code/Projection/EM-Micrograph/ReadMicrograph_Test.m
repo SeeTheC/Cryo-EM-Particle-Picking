@@ -3,16 +3,22 @@ addpath(genpath('~/git/Cryp-EM/code/lib/3dviewer'));
 addpath(genpath('../MapFileReader/'));
 addpath(genpath('../Classification'));
 %%
-base='~/git/Dataset/EM/EM-10025/10025/data/14sep05c_averaged_196';
-file= strcat(base,'/','14sep05c_00024sq_00003hl_00002es_c.mrc');
+base='~/Projection/data/RealDataset/10012/Test_Mircrograph';
+file= strcat(base,'/','BGal_000470.mrc');
 saveBP='sample_result';
-saveFN='14sep05c_00024sq_00003hl_00002es_c';
+saveFN='EM-10012-micrograph-full';
 %file= strcat(base,'/','14sep05c_00024sq_00003hl_00005es_c.mrc');
+downsample=1;
 [img,s,mi,ma,av]=ReadMRC(file);
 img=img-min(img(:));
 micrograph=img/max(img(:));
+micrograph=imresize(micrograph,1/downsample);
 imwrite(micrograph,strcat(saveBP,'/',saveFN,'_micrograph.png'));
 fprintf('Done\n');
+imshow(micrograph,[]);
+%%
+
+
 %%
 %base='~/git/Dataset/EM/EM-10025/10025/data/14sep05c_raw_196';
 %file= strcat(base,'/','14sep05c_00024sq_00003hl_00002es.frames.mrc');

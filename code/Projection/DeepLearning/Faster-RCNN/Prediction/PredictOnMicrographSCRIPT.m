@@ -17,7 +17,7 @@ end
 %----------------------------[Config:1]--------------------------------------
 dataset='_dl-proj-10025v.10_mghw_1000';
 %trainedModelpath='8.model_vgg16_full';% used when trainNewModel = false i.e for loading already trained model
-trainedModelpath='12.model_VGG16_2_14000';% used when trainNewModel = false i.e for loading already trained model
+trainedModelpath='18.model_v6619_trainv3';% used when trainNewModel = false i.e for loading already trained model
 processMultipleMg=true;
 coordMetadataPath=strcat(basepath,'/10025/','run1_shiny_mp007_data_dotstar.txt.star'); 
 
@@ -41,7 +41,7 @@ fprintf('Completed..\n');
     
 %% Single Micrograph
 
-if(~processMultipleMg)
+if(processMultipleMg)
     %  Loading Micrograph
     fprintf('Testing on image..\n')
     % Base: /10025/data/14sep05c_averaged_196/
@@ -59,11 +59,12 @@ if(~processMultipleMg)
 
     config.trainedModel=trainedModel;
     config.micrograph=micrograph;    
-    config.minScoreProbability=0;
+    config.minScoreProbability=0.4;
     config.visualDownsample=12;
     % downsample
     config.downsample=downsample;
-    config.downsampleList=[4,3,3.5,2.5,2,1];
+    %config.downsampleList=[4,3,3.5,2.5,2];
+    config.downsampleList=[1];
     
     %Filter
     config.applyWienerFiter=true; 
@@ -90,10 +91,10 @@ if(~processMultipleMg)
     
     [accuracy,correctlyPredCount,...
      trueCount,mapping,...
-     transError,resultTable,...
+     transError,resultTable,predLocFilter,...
      predImg,predTrueImg]=predictOnFullMicrograph(config);
     fprintf('Done.');
-    imshow(predTrueImg);
+    figure, imshow(predTrueImg),impixelinfo;
 end
 %% Multiple Micrograph
 if(processMultipleMg)
@@ -125,7 +126,7 @@ if(processMultipleMg)
         config.visualDownsample=12;
        % downsample
         %config.downsample=downsample;
-        config.downsampleList=[4,3,3.5,2.5,2,1];
+        config.downsampleList=[4,3,2];
     
         %Filter
         config.applyWienerFiter=true; 
@@ -140,9 +141,14 @@ if(processMultipleMg)
         config.nnThreshold=216/2;
         
         % Mark center
-        config.markCenterOnImg=false;
+        config.markCenterOnImg=true;
         config.coordMetadataPath=coordMetadataPath;
         config.mgName=mgName;
+        
+        % Faster-RCNN
+        config.minInputLayerSize=225;
+    
+    
         % Save
         config.save=savedMgResult;
         % ----------[ Config: End ]--------------------

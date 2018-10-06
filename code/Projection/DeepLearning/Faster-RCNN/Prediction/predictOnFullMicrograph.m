@@ -1,4 +1,4 @@
-function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable,predImg,predTrueImg] = predictOnFullMicrograph(config)
+function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable,predLocFilter,predImg,predTrueImg] = predictOnFullMicrograph(config)
     %% Init
     trainedModel=config.trainedModel;
     micrograph=config.micrograph;
@@ -23,7 +23,7 @@ function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable,p
        % Removing Duplicates using NMS
        [predLocNMS] = nms(finalPredLoc,config.segmentSupressionDiameter);
        predLoc=predLocNMS;
-       predLoc=finalPredLoc;
+       %predLoc=finalPredLoc;
     else 
        tic
        [predLoc] = predictCompleteMicrograph(trainedModel,micrograph,config);
@@ -167,7 +167,8 @@ end
 
 % Removing duplicates centers using NMS (Non-maximal supression) 
 function [predLocNMS] = nms(predLoc,supressionDiameter)
-    %supressionRadius=ceil(supressionDiameter/2);
+    supRad=ceil(supressionDiameter/2);
+    supRadSq=supRad*supRad;
     supDiaSq=supressionDiameter*supressionDiameter;
     predLoc=sortrows(predLoc,[1 2]);
     predLocNMS=predLoc;
@@ -179,9 +180,9 @@ function [predLocNMS] = nms(predLoc,supressionDiameter)
         if(score==-1)
             continue;
         end
-        for j=max(1,i-100):n
+        for j=1:n
            dist= (predLoc(j,1)-x)^2+(predLoc(j,2)-y)^2;
-           if(dist<=supDiaSq && predLoc(j,3)>score)
+           if(dist<=supRadSq && predLoc(j,3)>score)
                predLoc(k,3)=-1;
                k=j;
                x=predLoc(k,1);y=predLoc(k,2);score=predLoc(k,3);
