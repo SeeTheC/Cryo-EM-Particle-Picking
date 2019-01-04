@@ -17,7 +17,7 @@ end
 %----------------------------[Config:1]--------------------------------------
 dataset='_dl-proj-10025v.10_mghw_1000';
 %trainedModelpath='8.model_vgg16_full';% used when trainNewModel = false i.e for loading already trained model
-trainedModelpath='18.model_v6619_trainv3';% used when trainNewModel = false i.e for loading already trained model
+trainedModelpath='14.model_vgg16trav3_2';% used when trainNewModel = false i.e for loading already trained model
 processMultipleMg=true;
 coordMetadataPath=strcat(basepath,'/10025/','run1_shiny_mp007_data_dotstar.txt.star'); 
 
@@ -64,7 +64,7 @@ if(processMultipleMg)
     % downsample
     config.downsample=downsample;
     %config.downsampleList=[4,3,3.5,2.5,2];
-    config.downsampleList=[1];
+    config.downsampleList=[4];
     
     %Filter
     config.applyWienerFiter=true; 
@@ -192,7 +192,7 @@ if(processMultipleMg)
     xticks(bEdge);
     xlabel('Translation Error');
     ylabel('Frequency Count');
-    tstr=sprintf('\\fontsize{14}{\\color{magenta}T20 Proteasome:Translation Error Histogram (Particles:%d) }',numel(allTransError));
+    tstr=sprintf('\\fontsize{14}{\\color{magenta}Translation Error Histogram (Particles:%d) }',numel(allTransError));
     title(tstr);
     saveas(gcf,strcat(saveCumulativeResult,'/','Translation_Error_Histogram.png'));
     fprintf('**Completed Processing Multiple Micrograph.\n');

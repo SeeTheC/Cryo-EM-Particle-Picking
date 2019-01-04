@@ -27,8 +27,8 @@ noOfMg=numel(filename);
 fprintf('** Number of Micrograph to process:%d\n',noOfMg);
 
 %% Process each Micrograph
-for i=1:1%noOfMg
-    fullfn=filename{i};
+for i=2:2%noOfMg
+    fullfn=filename{i}
     fprintf('Processing Mg(%d/%d): %s\n',i,noOfMg,fullfn);
     fn=split(fullfn,'.');
     fn=fn{1};
@@ -45,18 +45,24 @@ fprintf('Done\n');
 %% TESTING MARKING
 markingFile=strcat(markingBPath,'/','B00001.txt');
 tbl=getAllCoordinate(markingFile);
-
 %%
-downsample=18;
-img=imresize(double(mg),1/downsample);
+mg1=mg(1:end,1:5000);
+%%
+downsample=8;
+img=imresize(double(mg1),1/downsample);
 img=img/max(img(:));
-lineWidth=0;predictColor='red';
+lineWidth=3;predictColor='red';
+[H,W]=size(img);
+
 %mark center
 % predicted center    
 for r= 1:size(tbl,1)
     cx=round(tbl{r,:}(1)/downsample);cy=round(tbl{r,:}(2)/downsample);
+    if(cx>H || cy > W)
+        continue;
+    end
     fprintf('Particle: i:%d x:%d y:%d\n',r,cx,cy);
-    markSize=2;
+    markSize=4;
     img=insertMarker(img,[cy,cx],'x','color',predictColor,'size',markSize);    
     for w=1:lineWidth
         img=insertMarker(img,[cy-w,cx],'x','color',predictColor,'size',markSize); 

@@ -17,7 +17,7 @@ timestamp=strcat('ts_',timestamp);
 %----------------------------[Config:1]--------------------------------------
 dataset='_dl-proj-10025v.10_mghw_1000';
 
-trainNewModel=true;
+trainNewModel=false;
 checkpointing=false;
 valPercent=0.2;
 maxTrainDatasetSize=14000;
@@ -25,7 +25,7 @@ smallestImageDimension= 250; % used in faster RCNN
 
 trainFrmChkPtModelPath='';% used when trainNewModel= true && checkpointing =true
 trainFrmChkPtModelChkptName=''; % used when trainNewModel= true && checkpointing=true
-trainedModelpath='model_self_3';% used when trainNewModel = false i.e for loading already trained model
+trainedModelpath='14.model_vgg16trav3_2';% used when trainNewModel = false i.e for loading already trained model
 %--------------------------------------------------------------------------
 
 basepath = strcat(basepath,'/',dataset);
@@ -73,8 +73,8 @@ fprintf('Done.\n');
 %% Visualizing Dataset 
 % Read one of the images.
 %12216:2183
-imgNo=12216;
-downscale=6;
+imgNo=2183;
+downscale=2;
 img = imread(fullTrainDataset.filename{imgNo});
 img1=imresize(img,1/downscale);
 img1=double(img1-min(img1(:)));
@@ -202,9 +202,9 @@ mgFile=strcat(basepath,'/10025/data/14sep05c_averaged_196/',mgName);
 mg=mg-min(mg(:));
 mg=mg./max(mg(:));
 %%
-Iimg = imread(trainDataset.filename{20});
+Iimg = imread(trainDataset.filename{21});
 %Iimg=img3;
-I=imresize(Iimg,1/4);
+I=imresize(Iimg,1/3.5);
 %hI=histeq(I);
 %I=hI;
 %I=Iimg;

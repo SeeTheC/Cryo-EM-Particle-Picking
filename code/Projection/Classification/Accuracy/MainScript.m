@@ -25,7 +25,7 @@
     config=struct;
     config.server=server;
     config.collageDir='collage';   
-    config.dataset='_data-proj-10025v.10'; % img dimension: [216,216]     
+    config.dataset='_data-proj-10028v.10'; % img dimension: [216,216]     
     config.cellDim=[216,216];
     config.supressBoxSize=[216,216];        
     config.basepath=basepath;
@@ -108,18 +108,18 @@
     end
 %% Multiple Micrograph
 if(multipleMg)
-    config.probThershold=0.7;   
+    config.probThershold=0.97;   
     config.maxCollageSize=[];    
-    config.modelType=ModelType.RandomForest;      
+    config.modelType=ModelType.CompactSVM;      
     config.model='model_4-8-12_18000';          
     config.scaleModel=3;% which scale model to test
     config.downscale=12; % what is the downscale value fo micrograph;
-    config.visualDownsample=12;
-    %config.coordMetadataPath='10025/run1_shiny_mp007_data_dotstar.txt.csv';    
-    %config.coordMetadataPath='10028/relion_particles.csv';  
-	config.coordMetadataPath='10012/relion_particles.csv';      
+    config.visualDownsample=1;
+    %config.coordMetadataPath='10025/run1_shiny_mp007_data_dotstar.txt.star';    
+    config.coordMetadataPath='10028/relion_particles.csv';  
+	%config.coordMetadataPath='10012/relion_particles.csv';      
     config.collageSubDir='Test_Micrograph';
-
+    config.markCenter=true;
     mt='';
     if config.modelType==ModelType.CompactSVM   
         mt='svm-linear-40TC'; 
@@ -149,7 +149,7 @@ if(multipleMg)
         config.collageNum=mgName;
         config.coordMetadataSearchStr=strcat(mgName,'.mrc'); 
         config.mgDir=mgDir;
-
+        
         fprintf('** Processing Mg(%d): %s\n',i,mgName);
         fprintf('\n------------------------------------------------------------\n');
         pause(2);

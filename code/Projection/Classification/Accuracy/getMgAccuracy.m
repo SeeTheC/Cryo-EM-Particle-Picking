@@ -117,34 +117,36 @@ function [accuracy,correctlyPredCount,trueCount,mapping,transError,resultTable] 
     %return 
     %% Marking Center Config
     maxCollageSize=config.maxCollageSize;
-    if config.server==2
-        originalCollageName= strcat(testPath,'/',config.collageSubDir,'/',collageNum,'.mrc');  
-        [collage,~,~,~,~]=ReadMRC(originalCollageName);
-        if(size(maxCollageSize,1)==0)
-            maxCollageSize=size(collage);
+    if config.markCenter==true
+        if config.server==2
+            originalCollageName= strcat(testPath,'/',config.collageSubDir,'/',collageNum,'.mrc');  
+            [collage,~,~,~,~]=ReadMRC(originalCollageName);
+            if(size(maxCollageSize,1)==0)
+                maxCollageSize=size(collage);
+            end
+            collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));    
+        else
+            originalCollageName=strcat(testPath,'/',config.collageSubDir,'/',collageNum,'.mat');
+            struct=load(originalCollageName);
+            collage=struct.img;
+            if(size(maxCollageSize,1)==0)
+                maxCollageSize=size(collage);
+            end
+            collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));            
         end
-        collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));    
-    else
-        originalCollageName=strcat(testPath,'/',config.collageSubDir,'/',collageNum,'.mat');
-        struct=load(originalCollageName);
-        collage=struct.img;
-        if(size(maxCollageSize,1)==0)
-            maxCollageSize=size(collage);
-        end
-        collage=collage(1:maxCollageSize(1),1:maxCollageSize(2));    
-        
+   
+        %if(config.downscale~=1)
+        %    collage=imresize(collage,1/config.downscale);        
+        %end
+        drawingConfig.originalMg=collage;
+        %drawingConfig.visualDownsample=config.downscale;  
+        drawingConfig.visualDownsample=config.visualDownsample;
+        %drawingConfig.downscaleModel=config.downscale;
+        drawingConfig.predictedLoc=predictedLoc;
+        drawingConfig.trueKnownLoc=trueKnownCoord;
+        drawingConfig.savepath=testCollageRawPath;    
+        % MarkCenter
+        [predImg,predTrueImg] = markCenterParticle(drawingConfig);
     end
-    %if(config.downscale~=1)
-    %    collage=imresize(collage,1/config.downscale);        
-    %end
-    drawingConfig.originalMg=collage;
-    %drawingConfig.visualDownsample=config.downscale;  
-    drawingConfig.visualDownsample=config.visualDownsample;
-    %drawingConfig.downscaleModel=config.downscale;
-    drawingConfig.predictedLoc=predictedLoc;
-    drawingConfig.trueKnownLoc=trueKnownCoord;
-    drawingConfig.savepath=testCollageRawPath;    
-    % MarkCenter
-    [predImg,predTrueImg] = markCenterParticle(drawingConfig);
 end
 
